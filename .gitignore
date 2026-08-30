@@ -2,11 +2,8 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
-results/*
-!results/.gitkeep
 partitions/generated/*
 !partitions/generated/.gitkeep
 reports/*.pdf
 !reports/.gitkeep
-logs/
 data/
