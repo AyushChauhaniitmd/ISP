@@ -157,12 +157,110 @@ def make_cifar10_binary_federation(data_config: dict, seed: int) -> Federation:
     )
 
 
+def make_cifar10_multiclass_federation(data_config: dict, seed: int) -> Federation:
+    """Create a 10-class, image-tensor CIFAR-10 federation for the Phase 2 CNN model.
+
+    Unlike ``make_cifar10_binary_federation``, this keeps images as ``(N, 3, 32, 32)``
+    tensors (no flattening/pooling into fixed public features) so a convolutional
+    model can be trained. Client heterogeneity is controlled with a symmetric
+    Dirichlet split over the 10 classes: ``alpha -> 0`` yields near-single-class
+    clients (highly non-IID) and ``alpha`` large yields near-uniform label mixes,
+    matching the standard non-IID-FL convention used by FedAvg-family papers.
+    This is a Phase 2 backend: it is CPU-usable for smoke tests but is intended
+    to be trained on GPU for the full benchmark grid.
+    """
+    try:
+        from torchvision.datasets import CIFAR10
+    except ImportError as exc:  # pragma: no cover - environment dependent
+        raise RuntimeError("CIFAR-10 requires torchvision. Install requirements.txt first.") from exc
+    root = str(data_config.get("dataset_root", "data"))
+    download = bool(data_config.get("download", False))
+    try:
+        train = CIFAR10(root=root, train=True, download=False)
+        test = CIFAR10(root=root, train=False, download=False)
+    except RuntimeError:
+        if not download:
+            raise
+        train = CIFAR10(root=root, train=True, download=True)
+        test = CIFAR10(root=root, train=False, download=True)
+    rng = np.random.default_rng(seed)
+    train_images = torch.tensor(np.asarray(train.data), dtype=torch.float32).permute(0, 3, 1, 2) / 255.0
+    train_labels = torch.tensor(np.asarray(train.targets), dtype=torch.long)
+    test_images = torch.tensor(np.asarray(test.data), dtype=torch.float32).permute(0, 3, 1, 2) / 255.0
+    test_labels = torch.tensor(np.asarray(test.targets), dtype=torch.long)
+    # Fixed public per-channel normalization (CIFAR-10 train-set statistics).
+    # No learned parameters and no private-data fitting.
+    mean = torch.tensor([0.4914, 0.4822, 0.4465]).view(1, 3, 1, 1)
+    std = torch.tensor([0.2470, 0.2435, 0.2616]).view(1, 3, 1, 1)
+    train_images = (train_images - mean) / std
+    test_images = (test_images - mean) / std
+
+    n_clients = int(data_config["n_clients"])
+    samples_per_client = int(data_config["samples_per_client"])
+    audit_samples = int(data_config.get("audit_samples", 400))
+    test_samples = int(data_config.get("test_samples", len(test_labels)))
+    alpha = float(data_config.get("heterogeneity_alpha", 100.0))
+    if alpha <= 0.0:
+        raise ValueError("data.heterogeneity_alpha must be positive (small values are more non-IID).")
+    n_classes = 10
+    required = n_clients * samples_per_client + audit_samples
+    if required > len(train_labels):
+        raise ValueError(f"Requested {required} train/audit examples but only {len(train_labels)} CIFAR-10 train examples exist.")
+
+    class_pools = {label: rng.permutation(torch.where(train_labels == label)[0].numpy()).tolist() for label in range(n_classes)}
+    # Reserve a held-out audit pool first, drawn evenly across classes, so it never
+    # overlaps client training data regardless of the Dirichlet draw below.
+    audit_indices: list[int] = []
+    per_class_audit = max(1, audit_samples // n_classes)
+    for label in range(n_classes):
+        take = min(per_class_audit, len(class_pools[label]))
+        audit_indices.extend(class_pools[label][:take])
+        class_pools[label] = class_pools[label][take:]
+    audit_indices = audit_indices[:audit_samples]
+
+    clients: dict[int, ClientDataset] = {}
+    class_proportions = rng.dirichlet(alpha=[alpha] * n_classes, size=n_clients)
+    for client_id in range(n_clients):
+        counts = np.floor(class_proportions[client_id] * samples_per_client).astype(int)
+        # Distribute any remainder from flooring back onto the classes with the
+        # largest fractional part so totals still sum to samples_per_client.
+        remainder = samples_per_client - counts.sum()
+        if remainder > 0:
+            fractional = class_proportions[client_id] * samples_per_client - counts
+            top_up = np.argsort(-fractional)[:remainder]
+            counts[top_up] += 1
+        indices: list[int] = []
+        for label in range(n_classes):
+            take = min(int(counts[label]), len(class_pools[label]))
+            if take < counts[label]:
+                raise ValueError(
+                    "Class pool exhausted while building a Dirichlet client split; "
+                    "reduce n_clients, samples_per_client, or audit_samples, or raise heterogeneity_alpha."
+                )
+            indices.extend(class_pools[label][:take])
+            class_pools[label] = class_pools[label][take:]
+        idx = torch.tensor(indices, dtype=torch.long)
+        clients[client_id] = ClientDataset(client_id=client_id, x=train_images[idx], y=train_labels[idx])
+
+    audit_idx = torch.tensor(audit_indices, dtype=torch.long)
+    test_idx = torch.tensor(rng.choice(len(test_labels), size=min(test_samples, len(test_labels)), replace=False), dtype=torch.long)
+    return Federation(
+        clients=clients,
+        test_x=test_images[test_idx],
+        test_y=test_labels[test_idx],
+        audit_x=train_images[audit_idx],
+        audit_y=train_labels[audit_idx],
+    )
+
+
 def make_federation(data_config: dict, seed: int) -> Federation:
     backend = data_config.get("backend", "synthetic")
     if backend == "synthetic":
         return make_synthetic_federation(data_config, seed)
     if backend == "cifar10_binary":
         return make_cifar10_binary_federation(data_config, seed)
+    if backend == "cifar10_multiclass":
+        return make_cifar10_multiclass_federation(data_config, seed)
     raise ValueError(f"Unsupported dataset backend: {backend}")
 
 

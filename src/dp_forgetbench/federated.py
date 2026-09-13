@@ -30,17 +30,30 @@ class SmallGroupNormCNN(nn.Module):
         self.features = nn.Sequential(
             nn.Conv2d(3, 32, kernel_size=3, padding=1), nn.GroupNorm(8, 32), nn.ReLU(inplace=True), nn.MaxPool2d(2),
             nn.Conv2d(32, 64, kernel_size=3, padding=1), nn.GroupNorm(8, 64), nn.ReLU(inplace=True), nn.MaxPool2d(2),
-            nn.AdaptiveAvgPool2d((1, 1)),
         )
-        self.classifier = nn.Linear(64, num_classes)
+        self.classifier = nn.Linear(64 * 8 * 8, num_classes)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.classifier(self.features(x).flatten(1))
 
 
-def make_model(model_config: dict | None, n_features: int) -> nn.Module:
+def infer_n_features(sample_x: torch.Tensor) -> int | None:
+    """Return the flat feature count for 2-D client tensors, or None for image tensors.
+
+    ``BinaryLinearModel`` needs an explicit input width; ``SmallGroupNormCNN``
+    ignores this argument entirely and reads channel count from the data itself,
+    so image-shaped ``(N, C, H, W)`` client tensors return ``None``.
+    """
+    if sample_x.ndim == 2:
+        return int(sample_x.shape[1])
+    return None
+
+
+def make_model(model_config: dict | None, n_features: int | None) -> nn.Module:
     name = (model_config or {}).get("name", "binary_linear")
     if name == "binary_linear":
+        if n_features is None:
+            raise ValueError("model.name='binary_linear' requires 2-D client features; got image-shaped data.")
         return BinaryLinearModel(n_features)
     if name == "small_groupnorm_cnn":
         return SmallGroupNormCNN(int((model_config or {}).get("num_classes", 10)))
@@ -124,6 +137,10 @@ def state_delta(new_state: dict[str, torch.Tensor], old_state: dict[str, torch.T
     return {name: new_state[name] - old_state[name] for name in old_state}
 
 
+def get_device() -> torch.device:
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
 def l2_norm(delta: dict[str, torch.Tensor]) -> torch.Tensor:
     return torch.sqrt(sum(torch.sum(value.float() ** 2) for value in delta.values()))
 
@@ -137,15 +154,17 @@ def clip_delta(delta: dict[str, torch.Tensor], clip_norm: float) -> dict[str, to
 def _local_update(
     global_state: dict[str, torch.Tensor], client: ClientDataset, config: dict, n_features: int, model_config: dict | None
 ) -> dict[str, torch.Tensor]:
-    model = make_model(model_config, n_features)
-    model.load_state_dict(global_state)
+    device = get_device()
+    model = make_model(model_config, n_features).to(device)
+    # Ensure global_state is on the correct device when loading
+    model.load_state_dict({k: v.to(device) for k, v in global_state.items()})
     model.train()
     optimizer = torch.optim.SGD(model.parameters(), lr=float(config["learning_rate"]))
     batch_size = int(config["local_batch_size"])
     for _ in range(int(config["local_epochs"])):
         for start in range(0, len(client.y), batch_size):
-            x = client.x[start : start + batch_size]
-            y = client.y[start : start + batch_size]
+            x = client.x[start : start + batch_size].to(device, non_blocking=True)
+            y = client.y[start : start + batch_size].to(device, non_blocking=True)
             optimizer.zero_grad()
             loss = _per_example_loss(model(x), y).mean()
             loss.backward()
@@ -180,9 +199,10 @@ def train_federated(
         raise ValueError("Cannot train without retained clients.")
     set_seed(seed)
     rng = np.random.default_rng(seed)
-    model = make_model(model_config, n_features)
+    device = get_device()
+    model = make_model(model_config, n_features).to(device)
     if initial_state is not None:
-        model.load_state_dict(initial_state)
+        model.load_state_dict({k: v.to(device) for k, v in initial_state.items()})
     global_state = clone_state(model)
     if history is not None:
         if history.initial_state is not None or history.rounds:
@@ -305,14 +325,22 @@ def finetune_retained(
 
 
 def flatten_logits(model: nn.Module, x: torch.Tensor) -> torch.Tensor:
+    device = get_device()
+    x = x.to(device)
+    model = model.to(device)
     model.eval()
     with torch.no_grad():
         return model(x).detach().cpu()
 
 
 def evaluate_loss_accuracy(model: nn.Module, x: torch.Tensor, y: torch.Tensor) -> dict[str, float]:
-    logits = flatten_logits(model, x)
-    loss = _per_example_loss(logits, y.cpu()).mean().item()
+    device = get_device()
+    model = model.to(device)
+    model.eval()
+    with torch.no_grad():
+        x = x.to(device)
+        logits = flatten_logits(model, x)
+        loss = _per_example_loss(logits, y.cpu()).mean().item()
     accuracy = _accuracy(logits, y.cpu()).item()
     return {"loss": float(loss), "accuracy": float(accuracy)}
 

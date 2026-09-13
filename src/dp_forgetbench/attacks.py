@@ -15,12 +15,29 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, roc_auc_score, roc_curve
 from sklearn.model_selection import train_test_split
 
-from .federated import BinaryLinearModel, flatten_logits
+from torch import nn
+
+from .federated import flatten_logits, get_device
 
 
-def per_sample_loss(model: BinaryLinearModel, x: torch.Tensor, y: torch.Tensor) -> np.ndarray:
+def per_sample_loss(model: nn.Module, x: torch.Tensor, y: torch.Tensor) -> np.ndarray:
+    """Per-example loss for either a binary (single-logit) or multi-class model."""
+    device = get_device()
+    model = model.to(device)
+    x = x.to(device)
     logits = flatten_logits(model, x)
-    return torch.nn.functional.binary_cross_entropy_with_logits(logits, y.cpu(), reduction="none").numpy()
+    if logits.ndim == 1 or logits.shape[-1] == 1:
+        loss = torch.nn.functional.binary_cross_entropy_with_logits(logits.squeeze(-1), y.cpu().float(), reduction="none")
+    else:
+        loss = torch.nn.functional.cross_entropy(logits, y.cpu().long(), reduction="none")
+    return loss.numpy()
+
+
+def _confidence(logits: torch.Tensor) -> torch.Tensor:
+    """Scalar confidence signal for attack features: P(true-ish class), model-family agnostic."""
+    if logits.ndim == 1 or logits.shape[-1] == 1:
+        return torch.sigmoid(logits.squeeze(-1))
+    return torch.softmax(logits, dim=-1).max(dim=-1).values
 
 
 def _balanced_binary_groups(
@@ -30,23 +47,32 @@ def _balanced_binary_groups(
     unseen_y: torch.Tensor,
     limit_per_class: int = 100,
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-    """Match membership populations by label before calculating attack scores."""
+    """Match membership populations by label before calculating attack scores.
+
+    Iterates over every label actually present in either population, so this
+    works for binary (0/1) tasks and multi-class (e.g. 10-way CIFAR-10) tasks
+    alike -- a fixed ``(0.0, 1.0)`` label set would silently drop all non-binary
+    data instead of raising, which is why this is derived from the data.
+    """
+    labels_present = torch.unique(torch.cat([member_y, unseen_y])).tolist()
     member_indices, unseen_indices = [], []
-    for label in (0.0, 1.0):
+    for label in labels_present:
         m = torch.where(member_y == label)[0]
         u = torch.where(unseen_y == label)[0]
         take = min(len(m), len(u), limit_per_class)
         if take == 0:
-            raise ValueError("Attack populations do not have overlapping label support.")
+            continue
         member_indices.append(m[:take])
         unseen_indices.append(u[:take])
+    if not member_indices:
+        raise ValueError("Attack populations do not have overlapping label support.")
     member_idx = torch.cat(member_indices)
     unseen_idx = torch.cat(unseen_indices)
     return member_x[member_idx], member_y[member_idx], unseen_x[unseen_idx], unseen_y[unseen_idx]
 
 
 def loss_membership_probe(
-    model: BinaryLinearModel,
+    model: nn.Module,
     member_x: torch.Tensor,
     member_y: torch.Tensor,
     unseen_x: torch.Tensor,
@@ -73,19 +99,17 @@ def loss_membership_probe(
     }
 
 
-def _features(pre_model: BinaryLinearModel, post_model: BinaryLinearModel, x: torch.Tensor, y: torch.Tensor) -> np.ndarray:
-    pre_logits = flatten_logits(pre_model, x)
-    post_logits = flatten_logits(post_model, x)
-    pre_loss = torch.nn.functional.binary_cross_entropy_with_logits(pre_logits, y.cpu(), reduction="none")
-    post_loss = torch.nn.functional.binary_cross_entropy_with_logits(post_logits, y.cpu(), reduction="none")
-    return np.stack(
-        [pre_loss.numpy(), post_loss.numpy(), torch.sigmoid(pre_logits).numpy(), torch.sigmoid(post_logits).numpy()], axis=1
-    )
+def _features(pre_model: nn.Module, post_model: nn.Module, x: torch.Tensor, y: torch.Tensor) -> np.ndarray:
+    pre_loss = per_sample_loss(pre_model, x, y)
+    post_loss = per_sample_loss(post_model, x, y)
+    pre_confidence = _confidence(flatten_logits(pre_model, x)).numpy()
+    post_confidence = _confidence(flatten_logits(post_model, x)).numpy()
+    return np.stack([pre_loss, post_loss, pre_confidence, post_confidence], axis=1)
 
 
 def tri_population_probe(
-    pre_model: BinaryLinearModel,
-    post_model: BinaryLinearModel,
+    pre_model: nn.Module,
+    post_model: nn.Module,
     populations: Mapping[str, tuple[torch.Tensor, torch.Tensor]],
     seed: int,
 ) -> dict:

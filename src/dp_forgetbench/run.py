@@ -15,7 +15,7 @@ import torch
 from .config import load_config
 from .data import apply_client_deletion_requests, make_federation, normalized_deletion_requests, write_deletion_manifest
 from .evaluation import evaluate_against_target
-from .federated import FederatedHistory, finetune_retained, reconstruct_from_cached_updates, train_federated
+from .federated import FederatedHistory, finetune_retained, infer_n_features, reconstruct_from_cached_updates, train_federated
 from .privacy import make_ledger
 
 
@@ -59,7 +59,7 @@ def run_experiment(config: dict, config_path: Path) -> Path:
     run_dir = output_root / run_name
     run_dir.mkdir(parents=True, exist_ok=False)
     manifest_path, manifest_checksum = write_deletion_manifest(deletion_result.rows, Path("partitions") / "generated")
-    n_features = int(next(iter(federation.clients.values())).x.shape[1])
+    n_features = infer_n_features(next(iter(federation.clients.values())).x)
     model_config = config.get("model")
     privacy_config = {**config["privacy"]}
     if privacy_config["enabled"]:
@@ -88,16 +88,22 @@ def run_experiment(config: dict, config_path: Path) -> Path:
         seed=seed + 10_000,
         model_config=model_config,
     )
-    # A second independent target is required to quantify ordinary retraining
-    # variability. It is not an unlearning method and its cost is recorded separately.
-    target_model_2, target_cost_2 = train_federated(
-        clients=retained,
-        n_features=n_features,
-        federated_config=config["federated"],
-        privacy_config=target_privacy_config,
-        seed=seed + 11_000,
-        model_config=model_config,
-    )
+    # Independent targets are required to quantify ordinary retraining variability.
+    # We build an ensemble of them.
+    ensemble_size = int(config.get("evaluation", {}).get("retrain_ensemble_size", 5))
+    target_models_ensemble = []
+    target_costs_ensemble = []
+    for i in range(1, ensemble_size):
+        m, c = train_federated(
+            clients=retained,
+            n_features=n_features,
+            federated_config=config["federated"],
+            privacy_config=target_privacy_config,
+            seed=seed + 10_000 + i,
+            model_config=model_config,
+        )
+        target_models_ensemble.append(m)
+        target_costs_ensemble.append(c)
     unlearned_model, unlearning_cost = finetune_retained(
         full_model=full_model,
         clients=retained,
@@ -155,21 +161,23 @@ def run_experiment(config: dict, config_path: Path) -> Path:
             attack_seed=seed + 30_000,
             cost=target_cost,
         ),
-        "target_retrain_independent": evaluate_against_target(
-            candidate=target_model_2,
-            target=target_model,
-            test_x=federation.test_x,
-            test_y=federation.test_y,
-            forgotten_x=deletion_result.forgotten_x,
-            forgotten_y=deletion_result.forgotten_y,
-            retained_x=retained_x,
-            retained_y=retained_y,
-            unseen_x=federation.audit_x,
-            unseen_y=federation.audit_y,
-            pre_deletion_model=full_model,
-            attack_seed=seed + 30_000,
-            cost=target_cost_2,
-        ),
+        "target_retrain_ensemble": [
+            evaluate_against_target(
+                candidate=m,
+                target=target_model,
+                test_x=federation.test_x,
+                test_y=federation.test_y,
+                forgotten_x=deletion_result.forgotten_x,
+                forgotten_y=deletion_result.forgotten_y,
+                retained_x=retained_x,
+                retained_y=retained_y,
+                unseen_x=federation.audit_x,
+                unseen_y=federation.audit_y,
+                pre_deletion_model=full_model,
+                attack_seed=seed + 30_000,
+                cost=c,
+            ) for m, c in zip(target_models_ensemble, target_costs_ensemble)
+        ],
     }
     # Cached direct accumulation supports complete-client removal only. It is a
     # FedEraser-family historical baseline with a distinct server-history threat model.
@@ -203,8 +211,26 @@ def run_experiment(config: dict, config_path: Path) -> Path:
         if backend == "synthetic"
         else f"{backend} public-data pilot; exploratory benchmark result, not a SOTA or certified-unlearning claim."
     )
+    num_classes = config.get("model", {}).get("num_classes", 2)
+    chance = 1.0 / num_classes
+    threshold = chance + 0.15
+    # For validity, take the median of the target_retrain ensemble (including the primary)
+    ensemble_accs = [metrics["target_retrain"]["test"]["accuracy"]] + [
+        m["test"]["accuracy"] for m in metrics["target_retrain_ensemble"]
+    ]
+    ensemble_accs.sort()
+    retrain_acc = ensemble_accs[len(ensemble_accs) // 2]
+    
+    if retrain_acc < threshold:
+        validity_status = "INVALID"
+    elif retrain_acc < threshold + 0.15:
+        validity_status = "WARNING"
+    else:
+        validity_status = "VALID"
+
     metadata = {
         "experiment_name": config["experiment_name"],
+        "validity_status": validity_status,
         "config_path": config_path,
         "config_sha256": _config_hash(config),
         "effective_privacy_config": privacy_config,
@@ -247,7 +273,7 @@ def run_sequence_experiment(config: dict, config_path: Path) -> Path:
         raise ValueError("Sequence mode requires at least two deletion.requests.")
     seed = int(config["seed"])
     federation = make_federation(config["data"], seed)
-    n_features = int(next(iter(federation.clients.values())).x.shape[1])
+    n_features = infer_n_features(next(iter(federation.clients.values())).x)
     model_config = config.get("model")
     output_root = Path(config["output"]["root"])
     run_name = f"{config['experiment_name']}_sequence_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}_seed{seed}"
