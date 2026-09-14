@@ -71,14 +71,56 @@ def _balanced_binary_groups(
     return member_x[member_idx], member_y[member_idx], unseen_x[unseen_idx], unseen_y[unseen_idx]
 
 
+def _bootstrap_roc_metrics(
+    labels: np.ndarray,
+    scores: np.ndarray,
+    n_bootstraps: int = 100,
+    seed: int = 42,
+) -> dict[str, list[float]]:
+    rng = np.random.default_rng(seed)
+    n = len(labels)
+    auc_list, adv_list, tpr1_list, tpr01_list = [], [], [], []
+    for _ in range(n_bootstraps):
+        idx = rng.choice(n, size=n, replace=True)
+        boot_labels = labels[idx]
+        if len(np.unique(boot_labels)) < 2:
+            continue
+        boot_scores = scores[idx]
+        try:
+            boot_auc = float(roc_auc_score(boot_labels, boot_scores))
+            fpr, tpr, _ = roc_curve(boot_labels, boot_scores)
+            adv = float(np.max(tpr - fpr))
+            def _tpr_at(target_fpr: float) -> float:
+                valid = tpr[fpr <= target_fpr]
+                return float(valid.max()) if len(valid) else 0.0
+            auc_list.append(boot_auc)
+            adv_list.append(adv)
+            tpr1_list.append(_tpr_at(0.01))
+            tpr01_list.append(_tpr_at(0.001))
+        except Exception:
+            continue
+    def _ci(vals: list[float]) -> list[float]:
+        if not vals:
+            return [0.0, 0.0]
+        return [float(np.percentile(vals, 2.5)), float(np.percentile(vals, 97.5))]
+    return {
+        "auc_ci_95": _ci(auc_list),
+        "advantage_ci_95": _ci(adv_list),
+        "tpr_at_fpr_1pct_ci_95": _ci(tpr1_list),
+        "tpr_at_fpr_0_1pct_ci_95": _ci(tpr01_list),
+    }
+
+
 def loss_membership_probe(
     model: nn.Module,
     member_x: torch.Tensor,
     member_y: torch.Tensor,
     unseen_x: torch.Tensor,
     unseen_y: torch.Tensor,
-) -> dict[str, float | int]:
-    """Black-box loss-threshold MIA with label-matched member/non-member groups."""
+    n_bootstraps: int = 100,
+    seed: int = 42,
+) -> dict[str, float | int | list[float]]:
+    """Black-box loss-threshold MIA with label-matched member/non-member groups and bootstrap CIs."""
     mx, my, ux, uy = _balanced_binary_groups(member_x, member_y, unseen_x, unseen_y)
     # Lower loss means stronger membership evidence.
     scores = np.concatenate([-per_sample_loss(model, mx, my), -per_sample_loss(model, ux, uy)])
@@ -89,11 +131,18 @@ def loss_membership_probe(
     def tpr_at(target_fpr: float) -> float:
         valid = tpr[fpr <= target_fpr]
         return float(valid.max()) if len(valid) else 0.0
+    tpr1 = tpr_at(0.01)
+    tpr01 = tpr_at(0.001)
+    ci_dict = _bootstrap_roc_metrics(labels, scores, n_bootstraps=n_bootstraps, seed=seed)
     return {
         "auc": auc,
+        "auc_ci_95": ci_dict["auc_ci_95"],
         "advantage": advantage,
-        "tpr_at_fpr_1pct": tpr_at(0.01),
-        "tpr_at_fpr_0_1pct": tpr_at(0.001),
+        "advantage_ci_95": ci_dict["advantage_ci_95"],
+        "tpr_at_fpr_1pct": tpr1,
+        "tpr_at_fpr_1pct_ci_95": ci_dict["tpr_at_fpr_1pct_ci_95"],
+        "tpr_at_fpr_0_1pct": tpr01,
+        "tpr_at_fpr_0_1pct_ci_95": ci_dict["tpr_at_fpr_0_1pct_ci_95"],
         "members": int(len(mx)),
         "nonmembers": int(len(ux)),
     }

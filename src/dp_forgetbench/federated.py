@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from copy import deepcopy
 from dataclasses import dataclass
+import time
 
 import numpy as np
 import torch
@@ -37,6 +38,22 @@ class SmallGroupNormCNN(nn.Module):
         return self.classifier(self.features(x).flatten(1))
 
 
+class OriginalSmallGroupNormCNN(nn.Module):
+    """The original buggy architecture with spatial-destroying AdaptiveAvgPool2d."""
+
+    def __init__(self, num_classes: int) -> None:
+        super().__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, padding=1), nn.GroupNorm(8, 32), nn.ReLU(inplace=True), nn.MaxPool2d(2),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1), nn.GroupNorm(8, 64), nn.ReLU(inplace=True), nn.MaxPool2d(2),
+            nn.AdaptiveAvgPool2d((1, 1))
+        )
+        self.classifier = nn.Linear(64, num_classes)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.classifier(self.features(x).flatten(1))
+
+
 def infer_n_features(sample_x: torch.Tensor) -> int | None:
     """Return the flat feature count for 2-D client tensors, or None for image tensors.
 
@@ -57,6 +74,8 @@ def make_model(model_config: dict | None, n_features: int | None) -> nn.Module:
         return BinaryLinearModel(n_features)
     if name == "small_groupnorm_cnn":
         return SmallGroupNormCNN(int((model_config or {}).get("num_classes", 10)))
+    if name == "original_small_groupnorm_cnn":
+        return OriginalSmallGroupNormCNN(int((model_config or {}).get("num_classes", 10)))
     raise ValueError(f"Unknown model.name: {name}")
 
 
@@ -79,14 +98,16 @@ class TrainCost:
     local_examples: int = 0
     communicated_bytes: int = 0
     persistent_storage_bytes: int = 0
+    runtime_seconds: float = 0.0
 
-    def as_dict(self) -> dict[str, int]:
+    def as_dict(self) -> dict[str, int | float]:
         return {
             "rounds": self.rounds,
             "client_updates": self.client_updates,
             "local_examples": self.local_examples,
             "communicated_bytes": self.communicated_bytes,
             "persistent_storage_bytes": self.persistent_storage_bytes,
+            "runtime_seconds": round(float(self.runtime_seconds), 3),
         }
 
 
@@ -217,6 +238,7 @@ def train_federated(
     if private and normalizer <= 0:
         raise ValueError("Private Poisson aggregation needs positive fixed population_size * sample_rate.")
     cost = TrainCost()
+    start_time = time.perf_counter()
 
     for _round in range(int(federated_config["rounds"])):
         selected = _sample_clients(client_ids, sample_rate, rng)
@@ -251,6 +273,7 @@ def train_federated(
                     gaussian_noise=round_noise,
                 )
             )
+    cost.runtime_seconds = time.perf_counter() - start_time
     if history is not None:
         cost.persistent_storage_bytes = history.storage_bytes()
     return model, cost
@@ -274,6 +297,8 @@ def reconstruct_from_cached_updates(
     """
     if history.initial_state is None or not history.rounds:
         raise ValueError("Cached-update reconstruction requires a non-empty training history.")
+    start_time = time.perf_counter()
+    device = get_device()
     private = bool(privacy_config["enabled"])
     sample_rate = float(federated_config["client_sample_rate"])
     normalizer = float(privacy_config["population_size"]) * sample_rate if private else None
@@ -290,7 +315,119 @@ def reconstruct_from_cached_updates(
             elif retained_deltas:
                 aggregate = aggregate / len(retained_deltas)
             global_state[name] = global_state[name] + aggregate
-    model = make_model(model_config, n_features)
+    cost.runtime_seconds = time.perf_counter() - start_time
+    model = make_model(model_config, n_features).to(device)
+    model.load_state_dict(global_state)
+    return model, cost
+
+
+def federated_eraser(
+    *,
+    history: FederatedHistory,
+    clients: dict[int, ClientDataset],
+    forgotten_client_ids: set[int],
+    n_features: int,
+    federated_config: dict,
+    privacy_config: dict,
+    calibration_ratio: float = 0.5,
+    model_config: dict | None = None,
+) -> tuple[nn.Module, TrainCost]:
+    """Faithful implementation of the FedEraser unlearning algorithm (Liu et al., 2021).
+
+    FedEraser reconstructs the global model across rounds using historical updates
+    and local calibration updates from retained clients:
+    1. Historical update requirement: The server accesses historical per-client updates
+       and per-round noise stored during initial training.
+    2. Calibration procedure: At each round t, retained clients that participated in round t
+       receive the current unlearned model w'_t and perform local calibration training
+       to find the unlearning gradient direction delta_tilde.
+    3. Update calibration: The update is calibrated by preserving the historical update's
+       magnitude while adopting the new direction:
+       delta_bar = ||delta_historical|| * (delta_tilde / ||delta_tilde||).
+    4. Reconstruction: Calibrated updates are aggregated (with central DP noise if private)
+       to produce w'_{t+1}.
+
+    Assumptions & Privacy Implications:
+    - Server must retain all historical client-level updates (high persistent storage).
+    - Retained clients must be available and re-train locally (computation + communication).
+    - Accesses retained raw data; therefore this is NOT DP post-processing of the final model.
+    """
+    if history.initial_state is None or not history.rounds:
+        raise ValueError("FedEraser requires a non-empty training history with initial state.")
+
+    start_time = time.perf_counter()
+    device = get_device()
+    private = bool(privacy_config.get("enabled", False))
+    sample_rate = float(federated_config["client_sample_rate"])
+    # Normalizer for Poisson DP matches retained clients count or privacy population_size
+    normalizer = (
+        float(privacy_config.get("population_size", len(clients))) * sample_rate
+        if private
+        else None
+    )
+
+    global_state = {name: value.detach().clone() for name, value in history.initial_state.items()}
+    cost = TrainCost(rounds=0, persistent_storage_bytes=history.storage_bytes())
+
+    local_epochs = int(federated_config.get("local_epochs", 1))
+    cali_epochs = max(1, int(round(local_epochs * calibration_ratio)))
+    cali_config = {**federated_config, "local_epochs": cali_epochs}
+
+    for round_record in history.rounds:
+        cost.rounds += 1
+        # Retained participants in this round
+        retained_cids = [
+            cid for cid in round_record.selected_client_ids
+            if cid not in forgotten_client_ids and cid in clients
+        ]
+
+        if not retained_cids and not private:
+            continue
+
+        calibrated_deltas = []
+        for cid in retained_cids:
+            client_data = clients[cid]
+            # 1. Communication: server sends current unlearned model w'_t to client
+            cost.communicated_bytes += sum(v.numel() * v.element_size() for v in global_state.values())
+
+            # 2. Calibration training on client local data from w'_t
+            delta_tilde = _local_update(global_state, client_data, cali_config, n_features, model_config)
+            cost.client_updates += 1
+            cost.local_examples += len(client_data.y) * cali_epochs
+
+            # 3. Communication: client sends delta_tilde back to server
+            cost.communicated_bytes += sum(v.numel() * v.element_size() for v in delta_tilde.values())
+
+            # 4. Calibrate update: scale new direction by historical magnitude
+            hist_delta = round_record.deltas_by_client.get(cid)
+            if hist_delta is not None:
+                h_norm = l2_norm(hist_delta)
+                t_norm = l2_norm(delta_tilde)
+                factor = float(h_norm / (t_norm + 1e-12))
+                cal_delta = {k: v * factor for k, v in delta_tilde.items()}
+            else:
+                cal_delta = delta_tilde
+
+            calibrated_deltas.append(cal_delta)
+
+        # 5. Aggregate calibrated updates
+        for name in global_state:
+            if calibrated_deltas:
+                aggregate = torch.stack([d[name] for d in calibrated_deltas]).sum(dim=0)
+            else:
+                aggregate = torch.zeros_like(global_state[name])
+
+            if private:
+                if round_record.gaussian_noise is None:
+                    raise ValueError("Private FedEraser requires stored per-round Gaussian noise.")
+                aggregate = (aggregate + round_record.gaussian_noise[name]) / normalizer
+            elif calibrated_deltas:
+                aggregate = aggregate / len(calibrated_deltas)
+
+            global_state[name] = global_state[name] + aggregate
+
+    cost.runtime_seconds = time.perf_counter() - start_time
+    model = make_model(model_config, n_features).to(device)
     model.load_state_dict(global_state)
     return model, cost
 

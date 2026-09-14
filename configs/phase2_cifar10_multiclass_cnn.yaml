@@ -19,11 +19,14 @@ model:
   num_classes: 10
 
 federated:
-  rounds: 30
-  local_epochs: 1
+  rounds: 40
+  local_epochs: 2
   local_batch_size: 32
-  learning_rate: 0.02
+  learning_rate: 0.1
   client_sample_rate: 0.5
+
+evaluation:
+  retrain_ensemble_size: 3
 
 privacy:
   enabled: true

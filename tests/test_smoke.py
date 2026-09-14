@@ -16,7 +16,7 @@ def test_phase0_smoke(tmp_path, monkeypatch) -> None:
     assert (output / "privacy_ledger.json").exists()
     assert (output / "run_metadata.json").exists()
     metrics = (output / "metrics.json").read_text(encoding="utf-8")
-    assert "target_retrain_independent" in metrics
+    assert "target_retrain_ensemble" in metrics
     assert "forgotten_vs_unseen_loss_mia" in metrics
 
 

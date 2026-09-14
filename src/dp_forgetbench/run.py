@@ -14,8 +14,15 @@ import torch
 
 from .config import load_config
 from .data import apply_client_deletion_requests, make_federation, normalized_deletion_requests, write_deletion_manifest
-from .evaluation import evaluate_against_target
-from .federated import FederatedHistory, finetune_retained, infer_n_features, reconstruct_from_cached_updates, train_federated
+from .evaluation import compute_method_mub, evaluate_against_target
+from .federated import (
+    FederatedHistory,
+    federated_eraser,
+    finetune_retained,
+    infer_n_features,
+    reconstruct_from_cached_updates,
+    train_federated,
+)
 from .privacy import make_ledger
 
 
@@ -130,6 +137,8 @@ def run_experiment(config: dict, config_path: Path) -> Path:
             pre_deletion_model=full_model,
             attack_seed=seed + 30_000,
             cost=full_cost,
+            assumptions="No post-deletion action taken; relies on pre-existing client-level DP guarantee.",
+            privacy_implications="Client-level DP mechanism recorded in privacy_ledger.json; no extra privacy loss or raw data access.",
         ),
         "retained_finetune_baseline": evaluate_against_target(
             candidate=unlearned_model,
@@ -145,6 +154,8 @@ def run_experiment(config: dict, config_path: Path) -> Path:
             pre_deletion_model=full_model,
             attack_seed=seed + 30_000,
             cost=unlearning_cost,
+            assumptions="Starts from full model and runs fine-tuning rounds on retained clients.",
+            privacy_implications="Accesses retained raw data after deletion request; separate exposure regime, not DP post-processing.",
         ),
         "target_retrain": evaluate_against_target(
             candidate=target_model,
@@ -160,6 +171,8 @@ def run_experiment(config: dict, config_path: Path) -> Path:
             pre_deletion_model=full_model,
             attack_seed=seed + 30_000,
             cost=target_cost,
+            assumptions="Ground truth gold-standard reference trained from scratch on retained data.",
+            privacy_implications="Internal benchmark reference; not an extra public release under the full-model ledger.",
         ),
         "target_retrain_ensemble": [
             evaluate_against_target(
@@ -176,15 +189,18 @@ def run_experiment(config: dict, config_path: Path) -> Path:
                 pre_deletion_model=full_model,
                 attack_seed=seed + 30_000,
                 cost=c,
+                assumptions="Ensemble retrain model for quantifying retrain variability.",
+                privacy_implications="Internal benchmark reference.",
             ) for m, c in zip(target_models_ensemble, target_costs_ensemble)
         ],
     }
-    # Cached direct accumulation supports complete-client removal only. It is a
-    # FedEraser-family historical baseline with a distinct server-history threat model.
-    if len(requests) == 1 and requests[0]["fraction"] == 1.0:
+
+    # Complete-client removal baselines: Cached Update Reconstruction & Faithful FedEraser
+    complete_deletion_ids = {r["client_id"] for r in requests if r.get("fraction", 1.0) == 1.0}
+    if complete_deletion_ids:
         cached_model, cached_cost = reconstruct_from_cached_updates(
             history=history,
-            forgotten_client_ids={requests[0]["client_id"]},
+            forgotten_client_ids=complete_deletion_ids,
             n_features=n_features,
             federated_config=config["federated"],
             privacy_config=privacy_config,
@@ -204,7 +220,58 @@ def run_experiment(config: dict, config_path: Path) -> Path:
             pre_deletion_model=full_model,
             attack_seed=seed + 30_000,
             cost=cached_cost,
+            assumptions="Uses sensitive per-client server update history; direct accumulation without client calibration; no client participation.",
+            privacy_implications="Server holds sensitive client-level updates; does not access raw data at unlearning time; separate exposure regime from DP release.",
         )
+
+        eraser_model, eraser_cost = federated_eraser(
+            history=history,
+            clients=retained,
+            forgotten_client_ids=complete_deletion_ids,
+            n_features=n_features,
+            federated_config=config["federated"],
+            privacy_config=privacy_config,
+            calibration_ratio=float(config.get("unlearning", {}).get("calibration_ratio", 0.5)),
+            model_config=model_config,
+        )
+        metrics["federated_eraser_baseline"] = evaluate_against_target(
+            candidate=eraser_model,
+            target=target_model,
+            test_x=federation.test_x,
+            test_y=federation.test_y,
+            forgotten_x=deletion_result.forgotten_x,
+            forgotten_y=deletion_result.forgotten_y,
+            retained_x=retained_x,
+            retained_y=retained_y,
+            unseen_x=federation.audit_x,
+            unseen_y=federation.audit_y,
+            pre_deletion_model=full_model,
+            attack_seed=seed + 30_000,
+            cost=eraser_cost,
+            assumptions="Requires stored historical updates for all clients and rounds; requires retained clients to run local calibration training.",
+            privacy_implications="Re-queries retained clients on raw data; not DP post-processing of the final model; server holds sensitive historical updates.",
+        )
+
+    # Compute MUB for every candidate against the retrain ensemble
+    all_retrain_metrics = [metrics["target_retrain"]] + metrics["target_retrain_ensemble"]
+    unlearning_methods = ["dp_only_no_action", "retained_finetune_baseline"]
+    if "cached_update_reconstruction_baseline" in metrics:
+        unlearning_methods.append("cached_update_reconstruction_baseline")
+    if "federated_eraser_baseline" in metrics:
+        unlearning_methods.append("federated_eraser_baseline")
+
+    mub_summary = {}
+    for method_name in unlearning_methods:
+        method_mub = compute_method_mub(
+            candidate_metrics=metrics[method_name],
+            dp_metrics=metrics["dp_only_no_action"],
+            all_retrain_metrics=all_retrain_metrics,
+        )
+        metrics[method_name]["mub"] = method_mub
+        mub_summary[method_name] = method_mub
+    metrics["mub_summary"] = mub_summary
+    metrics["full_model"] = metrics["dp_only_no_action"]
+
     backend = config["data"].get("backend", "synthetic")
     dataset_scope = (
         "Phase 0 synthetic data only; not a benchmark result."
@@ -213,17 +280,20 @@ def run_experiment(config: dict, config_path: Path) -> Path:
     )
     num_classes = config.get("model", {}).get("num_classes", 2)
     chance = 1.0 / num_classes
-    threshold = chance + 0.15
-    # For validity, take the median of the target_retrain ensemble (including the primary)
+
+    eval_config = config.get("evaluation", {})
+    validity_threshold_invalid = eval_config.get("validity_threshold_invalid", chance + 0.15)
+    validity_threshold_warning = eval_config.get("validity_threshold_warning", validity_threshold_invalid + 0.15)
+
     ensemble_accs = [metrics["target_retrain"]["test"]["accuracy"]] + [
         m["test"]["accuracy"] for m in metrics["target_retrain_ensemble"]
     ]
     ensemble_accs.sort()
     retrain_acc = ensemble_accs[len(ensemble_accs) // 2]
-    
-    if retrain_acc < threshold:
+
+    if retrain_acc < validity_threshold_invalid:
         validity_status = "INVALID"
-    elif retrain_acc < threshold + 0.15:
+    elif retrain_acc < validity_threshold_warning:
         validity_status = "WARNING"
     else:
         validity_status = "VALID"
@@ -249,10 +319,12 @@ def run_experiment(config: dict, config_path: Path) -> Path:
             "No secure aggregation service or certified-unlearning claim is implemented.",
         ],
         "method_privacy_class": {
+            "full_model": "pre-deletion model trained on all clients",
             "dp_only_no_action": "final-model client-DP mechanism as recorded in privacy_ledger.json; not deletion",
             "retained_finetune_baseline": "accesses retained raw data after request; separate exposure regime, not DP post-processing",
             "target_retrain": "internal retained-data retrain reference; if private, its population_size is the retained-client count",
-            "cached_update_reconstruction_baseline": "uses sensitive per-client server update history; not DP post-processing and not certified unlearning",
+            "cached_update_reconstruction_baseline": "uses sensitive per-client server update history; direct accumulation; not DP post-processing",
+            "federated_eraser_baseline": "faithful FedEraser algorithm; requires stored historical updates and client calibration training; not DP post-processing",
         },
     }
     _save_json(run_dir / "metrics.json", metrics)
