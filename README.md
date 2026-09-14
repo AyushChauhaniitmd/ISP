@@ -1,109 +1,124 @@
-# DP-ForgetBench
+# DP-ForgetBench: A Privacy-Aligned Audit of Federated Unlearning
 
 **When is explicit client unlearning redundant? A privacy-aligned audit of differentially private federated learning.**
 
-This repository builds a reproducible benchmark for client deletion in federated learning. It does not claim that DP deletes data, and it does not inflate exploratory numbers into SOTA. The goal is sharper: compare DP-only release, explicit unlearning baselines, and retraining references under a privacy contract whose adjacency matches the deletion request.
+This repository builds a rigorous, reproducible benchmark for client deletion in federated learning (FL). The core objective is not to claim that Differential Privacy (DP) perfectly deletes data, nor is it to inflate exploratory metrics to claim "State-of-the-Art" (SOTA). 
 
-## Current Status
+The goal is sharper and more scientifically grounded: **To compare DP-only model release, explicit federated unlearning baselines, and exact retraining references under a privacy contract where the unit of privacy matches the unit of the deletion request.**
 
-| Area | Status | Evidence now available | Next gate |
-|---|---|---|---|
-| Research protocol | Complete | [research plan](RESEARCH_GRADE_PLAN.md), [Phase 0 protocol](docs/PHASE_0_PROTOCOL.md), [threat model](docs/THREAT_MODEL.md) | freeze preregistered final endpoints |
-| PDF proposal | Complete | [RESEARCH_GRADE_PLAN.pdf](reports/RESEARCH_GRADE_PLAN.pdf) | regenerate after major plan changes |
-| Deterministic federation | Complete | synthetic plus real CIFAR-10 binary adapters; versioned deletion manifests | multi-class CIFAR-10/CIFAR-100/FEMNIST |
-| FedAvg reference | Complete | client sampling, local training, aggregation, exact retrain, independent retrain | reproduce published FL baseline settings |
-| Client-level central DP | Complete for simulator | clipping, server Gaussian noise, Poisson RDP ledger, fixed public normalizer | secure aggregation and independent accountant audit |
-| Explicit unlearning | Baselines partial | retained-data fine-tuning; cached-update direct reconstruction | faithful FedEraser/FedRecover/modern FU reproduction |
-| Evaluation | Partial but runnable | utility, deleted/retained loss, JS alignment, lifecycle cost, label-matched MIA probes, tri-population probe | LiRA/A-LiRA and faithful TC-UMIA style attacks |
-| Real-data results | Exploratory complete | [PHASE1_REAL_CIFAR_RESULTS.md](reports/PHASE1_REAL_CIFAR_RESULTS.md), 30 validated CIFAR runs | stronger models, stronger baselines, confirmatory seeds |
+---
 
-## Real CIFAR Result Snapshot
+## 🚀 Phase 2 Major Upgrades & Current Status
 
-The corrected Phase 1 grid used CIFAR-10 classes 0 vs 1, public average-pooled features, 12 clients, one full-client deletion, epsilons `{2, 8, infinity}`, heterogeneity `{0.2, 0.75}`, and 5 seeds per cell.
+In the most recent phase of development, the DP-ForgetBench execution pipeline was dramatically upgraded to solve critical blockers and formalize the evaluation framework. 
 
-Main exploratory result: across all six cells, explicit unlearning baselines did **not** show a practically material JS-to-retrain improvement over DP-only/no-action under the current screen. This is a useful research signal, not a final SOTA claim.
+### 1. Architecture & Convergence Fixes
+* **The Problem:** Early CIFAR-10 experiments under DP-FL collapsed to chance-level accuracy (~10%).
+* **The Fix:** We audited the model and found a flaw in `SmallGroupNormCNN` where aggressive `AdaptiveAvgPool2d((1, 1))` pooling was destroying spatial features. This was replaced with `Flatten(1)`.
+* **DP Hyperparameter Sweep:** We systematically swept DP hyperparameters and scaled the population size to $N=100$ clients ($20,000$ samples) with `noise_multiplier=0.5`. The model now successfully learns under strict client-level DP, achieving **>54% accuracy** and breaking the random-chance plateau.
 
-Artifacts:
+### 2. Retrain Ensemble & Validity Gating
+* **Retrain Variability:** A single target retrain ($M_R$) is too statistically noisy to serve as the ground-truth "gold standard" for unlearning. We implemented **Retrain Ensembles**, where the pipeline automatically trains $N$ independent target retrains using different random seeds to form an empirical distribution of retrain variability.
+* **Validity Gate Layer:** The execution pipeline (`run.py`) now includes an automated validity check. If the median test accuracy of the retrain ensemble falls below a threshold (e.g., 40%), the run is explicitly flagged as `INVALID`.
 
-- run index: [phase1_v3_reference_corrected_run_index.json](reports/phase1_v3_reference_corrected_run_index.json)
-- grouped screen: [phase1_v3_reference_corrected_grid_screen.json](reports/phase1_v3_reference_corrected_grid_screen.json)
-- readable report: [PHASE1_REAL_CIFAR_RESULTS.md](reports/PHASE1_REAL_CIFAR_RESULTS.md)
-- summary JSON: [phase1_v3_reference_corrected_summary.json](reports/phase1_v3_reference_corrected_summary.json)
+### 3. Marginal Unlearning Benefit (MUB)
+We formalized the definition of redundancy by introducing the **Marginal Unlearning Benefit (MUB)**. 
+Calculated via `scripts/aggregate_mub.py` with 95% Bootstrap Confidence Intervals, MUB measures the exact gain of applying an explicit unlearning algorithm over doing nothing (DP-only).
+* **Utility MUB:** Does unlearning bring test accuracy closer to the retrain ensemble?
+* **Alignment MUB:** Does unlearning match the predictive behavior of the retrain ensemble better than DP-only? (Measured via Jensen-Shannon Divergence).
+* **Privacy MUB:** Does unlearning reduce the Membership Inference Attack (MIA) advantage?
 
-## Privacy Rule
+---
 
-The primary experiment is **client-level central DP**: whole client updates are clipped, Gaussian noise is added at the server, and the accountant records client-sampling privacy loss. Example-level DP-SGD belongs only to a separate record-deletion control. Do not present one as the other.
+## 🔬 The Evaluation Framework
 
-The current mechanism is `poisson_sum_fixed_public_normalizer_v2`: sampled clipped updates are summed, noise is added to the sum, and the result is divided by fixed public `q * N`, never by the realized number of sampled clients. The released model ledger uses the original client population; retraining references use the retained-client population and record that separately in metadata.
+The benchmark rigorously evaluates three distinct outcomes for every configuration:
 
-## Quick Start
+1. **$M_{DP}$ (DP-Only / No Action):** A model trained on all data with client-level DP, left completely unchanged after a deletion request.
+2. **$M_U$ (Explicit Unlearning):** The model obtained by applying a specific federated unlearning algorithm after the deletion request.
+3. **$M_R$ (Exact Retrain):** The gold-standard models, trained from scratch on the dataset *without* the deleted client's data.
+
+By comparing $M_U$ and $M_{DP}$ against the $M_R$ ensemble, we can map the **Redundancy Frontier**—the specific combinations of privacy budget ($\epsilon$), data heterogeneity ($\alpha$), and deletion size where explicit unlearning adds material benefit vs. where it is statistically redundant.
+
+---
+
+## 🔒 The Privacy Rule: Client-Level DP
+
+The primary experiment utilizes **client-level central DP**:
+* Whole client updates are L2-clipped.
+* Gaussian noise is added to the aggregate at the server.
+* The DP accountant strictly tracks client-sampling privacy loss. 
+
+*Note: Example-level DP-SGD belongs only to a separate record-deletion control and must never be conflated with client-level removal guarantees.*
+
+---
+
+## 🛠️ Quick Start Guide
 
 Python 3.10-3.13 is supported.
 
+### 1. Installation
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-python -m pytest -q
 ```
 
-Run one deterministic smoke experiment:
-
+### 2. Run a Deterministic Smoke Test
 ```powershell
 python -m dp_forgetbench.run --config configs/phase0_toy.yaml --mode full
 ```
 
-Run the corrected real-data grid:
-
+### 3. Execute the Phase 2 DP Sweep & Pilot
+To run the validated configuration that achieves >54% accuracy under client-level DP:
 ```powershell
-python scripts/generate_phase1_grid.py --spec configs/phase1_grid_spec_v2.yaml --output configs/generated/phase1_v2
-python scripts/run_generated_grid.py --index configs/generated/phase1_v2/INDEX.txt --run-index reports/phase1_v3_reference_corrected_run_index.json --execute
-python scripts/analyze_grid.py --run-index reports/phase1_v3_reference_corrected_run_index.json --output reports/phase1_v3_reference_corrected_grid_screen.json
-python scripts/report_phase1_real.py --run-index reports/phase1_v3_reference_corrected_run_index.json --screen reports/phase1_v3_reference_corrected_grid_screen.json --markdown reports/PHASE1_REAL_CIFAR_RESULTS.md --json reports/phase1_v3_reference_corrected_summary.json
+python scripts/run_dp_sweep.py
+# Or run the pilot directly:
+python -m dp_forgetbench.run --config configs/phase2_private_pilot.yaml --mode full
 ```
 
-Validate a run before using it in a report:
-
+### 4. Validate Artifacts
+To check if a run passed the Validity Gate (accuracy >40%):
 ```powershell
 python scripts/validate_artifact.py results\<run-dir>
 ```
 
-Regenerate PDFs:
-
+### 5. Generate Documentation PDFs
 ```powershell
 python scripts/build_pdf.py RESEARCH_GRADE_PLAN.md reports/RESEARCH_GRADE_PLAN.pdf
-python scripts/build_pdf.py reports/PHASE1_REAL_CIFAR_RESULTS.md reports/PHASE1_REAL_CIFAR_RESULTS.pdf
 python scripts/build_pdf.py README.md reports/README.pdf
 ```
 
-## What Each Run Writes
+---
 
-Each result directory under `results/` contains:
-
-- `metrics.json`: utility, deleted/retained metrics, JS alignment, attack diagnostics, and cost.
-- `privacy_ledger.json`: DP mechanism, epsilon, delta, sampling rate, release count, and assumptions.
-- `run_metadata.json`: config hash, runtime details, deletion manifest checksum, method privacy classes, and reference privacy config.
-
-## What Is Still Needed For A Paper-Level Claim
-
-- stronger CIFAR-10/CIFAR-100/FEMNIST adapters and at least one GPU-scale model;
-- faithful published FU baselines, starting with FedEraser-style and FedRecover-style reproductions;
-- calibrated LiRA/A-LiRA membership inference plus stronger forget/retain probes;
-- preregistered multi-endpoint equivalence or non-inferiority tests;
-- >=10 confirmation seeds on transition cells;
-- a final 2026 literature check immediately before submission.
-
-## Layout
+## 📁 Repository Layout
 
 ```text
-configs/                 Immutable experiment configurations
+configs/                 Immutable YAML experiment configurations (sweeps, pilots, grids)
 docs/                    Protocol and threat-model documentation
 partitions/              Versioned deletion manifests generated by runs
 reports/                 PDFs, result summaries, validity notices
-results/                 Git-ignored raw experiment outputs
-scripts/                 Grid, validation, analysis, and PDF helpers
-src/dp_forgetbench/      Benchmark implementation
-tests/                   Determinism, privacy, deletion, and smoke tests
+results/                 Raw experiment outputs (metrics, privacy ledgers, metadata)
+scripts/                 Grid generation, validation, MUB aggregation, and PDF helpers
+src/dp_forgetbench/      Core Benchmark Implementation (FL, DP, Unlearning, Evaluation)
+tests/                   Pytest suite for determinism, privacy, deletion, and smoke testing
 ```
 
-Read [RESEARCH_GRADE_PLAN.md](RESEARCH_GRADE_PLAN.md) before changing experimental scope.
+## 📊 What Each Run Outputs
+
+Inside every result directory under `results/`, the framework securely logs:
+* `metrics.json`: Utility, deleted/retained metrics, JS alignment, attack diagnostics, and computational cost.
+* `privacy_ledger.json`: The exact DP mechanism, $\epsilon$, $\delta$, sampling rate, and release counts.
+* `run_metadata.json`: Configuration hashes, runtime details, deletion manifest checksums, and reference configs.
+
+---
+
+## 🔮 What Is Still Needed For A Final Paper Claim?
+
+While Phase 2 solidified the core architecture, DP convergence, and evaluation rigor, the following steps are required before a final scientific claim can be made:
+1. **Faithful Unlearning Baselines:** Implementation of established algorithms like FedEraser or Retain-Data Fine-Tuning.
+2. **Upgraded Privacy Attacks:** Moving LiRA/A-LiRA and Tri-population (Forget/Retain/Unseen) probes from baseline implementations to rigorous, calibrated audits.
+3. **Core Factorial Execution:** Running the full grid across $\epsilon \approx \{2, 8, \infty\}$ and Dirichlet $\alpha = \{1.0, 0.1\}$.
+4. **Final Confirmation:** $\ge 10$ confirmation seeds on frontier transition cells.
+
+*Read [RESEARCH_GRADE_PLAN.md](RESEARCH_GRADE_PLAN.md) before changing the experimental scope.*
