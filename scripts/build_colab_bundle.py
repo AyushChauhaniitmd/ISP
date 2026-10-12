@@ -21,11 +21,15 @@ def main() -> None:
         ROOT / "colab" / "README.md": BUNDLE / "colab" / "README.md",
         ROOT / "colab" / "requirements-colab.txt": BUNDLE / "colab" / "requirements-colab.txt",
         ROOT / "scripts" / "run_multiclass_utility_sweep.py": BUNDLE / "scripts" / "run_multiclass_utility_sweep.py",
+        ROOT / "scripts" / "analyze_frozen_unlearning.py": BUNDLE / "scripts" / "analyze_frozen_unlearning.py",
         ROOT / "configs" / "multiclass_resnet18_utility_sweep.yaml": BUNDLE / "configs" / "multiclass_resnet18_utility_sweep.yaml",
         ROOT / "configs" / "multiclass_resnet18_t4_smoke.yaml": BUNDLE / "configs" / "multiclass_resnet18_t4_smoke.yaml",
         ROOT / "configs" / "multiclass_cnn_nonprivate_control.yaml": BUNDLE / "configs" / "multiclass_cnn_nonprivate_control.yaml",
         ROOT / "configs" / "multiclass_cnn_dp_diagnostic.yaml": BUNDLE / "configs" / "multiclass_cnn_dp_diagnostic.yaml",
         ROOT / "configs" / "multiclass_cnn_rounds_ablation.yaml": BUNDLE / "configs" / "multiclass_cnn_rounds_ablation.yaml",
+        ROOT / "configs" / "multiclass_cnn_40round_confirmation.yaml": BUNDLE / "configs" / "multiclass_cnn_40round_confirmation.yaml",
+        ROOT / "configs" / "multiclass_cnn_local_epochs_ablation.yaml": BUNDLE / "configs" / "multiclass_cnn_local_epochs_ablation.yaml",
+        ROOT / "configs" / "multiclass_cnn_frozen_unlearning.yaml": BUNDLE / "configs" / "multiclass_cnn_frozen_unlearning.yaml",
     }
     for source, destination in files.items():
         destination.parent.mkdir(parents=True, exist_ok=True)

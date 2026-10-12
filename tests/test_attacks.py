@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import torch
 
-from dp_forgetbench.attacks import _bootstrap_roc_metrics, loss_membership_probe
+from dp_forgetbench.attacks import _bootstrap_roc_metrics, loss_membership_probe, tri_population_probe
 from dp_forgetbench.federated import BinaryLinearModel
 
 
@@ -44,3 +44,20 @@ def test_loss_membership_probe_outputs_ci_and_rates():
     assert "tpr_at_fpr_0_1pct_ci_95" in probe_res
     assert probe_res["members"] > 0
     assert probe_res["nonmembers"] > 0
+    assert probe_res["calibration_members"] > 0
+    assert probe_res["calibration_nonmembers"] > 0
+    assert probe_res["threshold_selection"].startswith("maximum TPR-FPR")
+
+
+def test_tri_population_probe_reports_disjoint_split_and_cis():
+    torch.manual_seed(7)
+    model = BinaryLinearModel(n_features=4)
+    populations = {
+        name: (torch.randn(18, 4), torch.randint(0, 2, (18,)).float())
+        for name in ("forget", "retain", "unseen")
+    }
+    result = tri_population_probe(model, model, populations, seed=7)
+    assert result["train_examples_per_population"] == 9
+    assert result["eval_examples_per_population"] == 9
+    assert len(result["probe_accuracy_ci_95"]) == 2
+    assert result["population_labels"] == {"0": "forget", "1": "retain", "2": "unseen"}

@@ -52,6 +52,7 @@ def run(config_path: Path, output_dir: Path | None = None) -> list[dict]:
     epsilons = [float(value) for value in evaluation.get("epsilons", [8, 12, 16, 20, 24, 32])]
     seeds = [int(value) for value in evaluation.get("seeds", [config["seed"]])]
     rounds_values = [int(value) for value in evaluation.get("rounds_values", [config["federated"]["rounds"]])]
+    local_epochs_values = [int(value) for value in evaluation.get("local_epochs_values", [config["federated"]["local_epochs"]])]
     output_dir = output_dir or Path(config["output"]["root"])
     output_dir.mkdir(parents=True, exist_ok=True)
     data_config = config["data"]
@@ -66,74 +67,75 @@ def run(config_path: Path, output_dir: Path | None = None) -> list[dict]:
     records: list[dict] = []
 
     print(f"Device: {device} ({torch.cuda.get_device_name(0) if device.type == 'cuda' else platform.processor()})")
-    print(f"Model: {config['model']['name']}; epsilons={epsilons}; rounds={rounds_values}; seeds={seeds}")
+    print(f"Model: {config['model']['name']}; epsilons={epsilons}; rounds={rounds_values}; local_epochs={local_epochs_values}; seeds={seeds}")
 
     for seed in seeds:
         set_seed(seed)
         federation = make_cifar10_multiclass_federation(data_config, seed)
         for rounds in rounds_values:
-            fed_config = {**config["federated"], "rounds": rounds}
-            for target_epsilon in epsilons:
-                started = time.perf_counter()
-                private = not math.isinf(target_epsilon)
-                if private:
-                    sigma, achieved_epsilon = calibrate_noise(
-                        target_epsilon,
-                        float(fed_config["client_sample_rate"]),
-                        rounds,
-                        float(base_privacy["delta"]),
+            for local_epochs in local_epochs_values:
+                fed_config = {**config["federated"], "rounds": rounds, "local_epochs": local_epochs}
+                for target_epsilon in epsilons:
+                    started = time.perf_counter()
+                    private = not math.isinf(target_epsilon)
+                    if private:
+                        sigma, achieved_epsilon = calibrate_noise(
+                            target_epsilon,
+                            float(fed_config["client_sample_rate"]),
+                            rounds,
+                            float(base_privacy["delta"]),
+                        )
+                    else:
+                        sigma, achieved_epsilon = 0.0, float("inf")
+                    privacy_config = {
+                        **base_privacy,
+                        "enabled": private,
+                        "population_size": int(data_config["n_clients"]),
+                        "noise_multiplier": sigma,
+                    }
+                    ledger = make_ledger(privacy_config, fed_config).as_dict()
+                    model, cost = train_federated(
+                        clients=federation.clients,
+                        n_features=None,
+                        federated_config=fed_config,
+                        privacy_config=privacy_config,
+                        seed=seed,
+                        model_config=config["model"],
                     )
-                else:
-                    sigma, achieved_epsilon = 0.0, float("inf")
-                privacy_config = {
-                    **base_privacy,
-                    "enabled": private,
-                    "population_size": int(data_config["n_clients"]),
-                    "noise_multiplier": sigma,
-                }
-                ledger = make_ledger(privacy_config, fed_config).as_dict()
-                model, cost = train_federated(
-                    clients=federation.clients,
-                    n_features=None,
-                    federated_config=fed_config,
-                    privacy_config=privacy_config,
-                    seed=seed,
-                    model_config=config["model"],
-                )
-                utility = evaluate_loss_accuracy(model, federation.test_x, federation.test_y)
-                invalid_threshold = float(evaluation.get("validity_threshold_invalid", 0.25))
-                warning_threshold = float(evaluation.get("validity_threshold_warning", 0.40))
-                if utility["accuracy"] < invalid_threshold:
-                    status, regime = "INVALID", "COLLAPSE"
-                elif utility["accuracy"] < warning_threshold:
-                    status, regime = "WARNING", "MARGINAL"
-                else:
-                    status, regime = "VALID", "HEALTHY"
-                record = {
-                    "model": config["model"]["name"],
-                    "seed": seed,
-                    "epsilon_target": target_epsilon,
-                    "epsilon_actual": ledger["epsilon"] if private else achieved_epsilon,
-                    "delta": ledger["delta"],
-                    "noise_multiplier": sigma,
-                    "clip_norm": privacy_config["clip_norm"],
-                    "sample_rate": fed_config["client_sample_rate"],
-                    "population_size": data_config["n_clients"],
-                    "samples_per_client": data_config["samples_per_client"],
-                    "rounds": rounds,
-                    "local_epochs": fed_config["local_epochs"],
-                    "aggregation_normalizer": ledger["aggregation_normalizer"],
-                    "test_accuracy": utility["accuracy"],
-                    "test_loss": utility["loss"],
-                    "validity_status": status,
-                    "regime": regime,
-                    "runtime_seconds": round(time.perf_counter() - started, 3),
-                    "train_cost": cost.as_dict(),
-                    "device": str(device),
-                    "torch_version": torch.__version__,
-                }
-                records.append(record)
-                print(f"epsilon={target_epsilon:g} actual={record['epsilon_actual']:.4f} seed={seed} accuracy={utility['accuracy'] * 100:.2f}% [{status}]")
+                    utility = evaluate_loss_accuracy(model, federation.test_x, federation.test_y)
+                    invalid_threshold = float(evaluation.get("validity_threshold_invalid", 0.25))
+                    warning_threshold = float(evaluation.get("validity_threshold_warning", 0.40))
+                    if utility["accuracy"] < invalid_threshold:
+                        status, regime = "INVALID", "COLLAPSE"
+                    elif utility["accuracy"] < warning_threshold:
+                        status, regime = "WARNING", "MARGINAL"
+                    else:
+                        status, regime = "VALID", "HEALTHY"
+                    record = {
+                        "model": config["model"]["name"],
+                        "seed": seed,
+                        "epsilon_target": target_epsilon,
+                        "epsilon_actual": ledger["epsilon"] if private else achieved_epsilon,
+                        "delta": ledger["delta"],
+                        "noise_multiplier": sigma,
+                        "clip_norm": privacy_config["clip_norm"],
+                        "sample_rate": fed_config["client_sample_rate"],
+                        "population_size": data_config["n_clients"],
+                        "samples_per_client": data_config["samples_per_client"],
+                        "rounds": rounds,
+                        "local_epochs": local_epochs,
+                        "aggregation_normalizer": ledger["aggregation_normalizer"],
+                        "test_accuracy": utility["accuracy"],
+                        "test_loss": utility["loss"],
+                        "validity_status": status,
+                        "regime": regime,
+                        "runtime_seconds": round(time.perf_counter() - started, 3),
+                        "train_cost": cost.as_dict(),
+                        "device": str(device),
+                        "torch_version": torch.__version__,
+                    }
+                    records.append(record)
+                    print(f"epsilon={target_epsilon:g} actual={record['epsilon_actual']:.4f} seed={seed} accuracy={utility['accuracy'] * 100:.2f}% [{status}]")
 
     (output_dir / "utility_sweep.json").write_text(json.dumps(records, indent=2), encoding="utf-8")
     fieldnames = sorted({key for record in records for key in record if key != "train_cost"})

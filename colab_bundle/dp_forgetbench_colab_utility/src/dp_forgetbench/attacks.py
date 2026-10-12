@@ -120,20 +120,45 @@ def loss_membership_probe(
     n_bootstraps: int = 100,
     seed: int = 42,
 ) -> dict[str, float | int | list[float]]:
-    """Black-box loss-threshold MIA with label-matched member/non-member groups and bootstrap CIs."""
+    """Held-out loss MIA with label matching and bootstrap confidence intervals.
+
+    The member and unseen populations are split independently, stratified by
+    label. ROC/AUC and the attack advantage are reported only on the held-out
+    evaluation split. This prevents selecting the best threshold and evaluating
+    it on the same examples.
+    """
     mx, my, ux, uy = _balanced_binary_groups(member_x, member_y, unseen_x, unseen_y)
     # Lower loss means stronger membership evidence.
     scores = np.concatenate([-per_sample_loss(model, mx, my), -per_sample_loss(model, ux, uy)])
     labels = np.concatenate([np.ones(len(mx), dtype=int), np.zeros(len(ux), dtype=int)])
-    auc = float(roc_auc_score(labels, scores))
-    fpr, tpr, _ = roc_curve(labels, scores)
-    advantage = float(np.max(tpr - fpr))
+    calibration_indices = []
+    eval_indices = []
+    for label in (0, 1):
+        indices = np.flatnonzero(labels == label)
+        calibration_part, eval_part = train_test_split(indices, test_size=0.5, random_state=seed, stratify=labels[indices])
+        calibration_indices.extend(calibration_part.tolist())
+        eval_indices.extend(eval_part.tolist())
+    calibration_indices = np.asarray(sorted(calibration_indices), dtype=int)
+    eval_indices = np.asarray(sorted(eval_indices), dtype=int)
+    calibration_labels = labels[calibration_indices]
+    calibration_scores = scores[calibration_indices]
+    eval_labels = labels[eval_indices]
+    eval_scores = scores[eval_indices]
+    auc = float(roc_auc_score(eval_labels, eval_scores))
+    calibration_fpr, calibration_tpr, calibration_thresholds = roc_curve(calibration_labels, calibration_scores)
+    best_index = int(np.argmax(calibration_tpr - calibration_fpr))
+    selected_threshold = float(calibration_thresholds[best_index])
+    eval_predictions = eval_scores >= selected_threshold
+    eval_tpr = float(np.sum(eval_predictions[eval_labels == 1]) / max(1, np.sum(eval_labels == 1)))
+    eval_fpr = float(np.sum(eval_predictions[eval_labels == 0]) / max(1, np.sum(eval_labels == 0)))
+    advantage = eval_tpr - eval_fpr
+    fpr, tpr, _ = roc_curve(eval_labels, eval_scores)
     def tpr_at(target_fpr: float) -> float:
         valid = tpr[fpr <= target_fpr]
         return float(valid.max()) if len(valid) else 0.0
     tpr1 = tpr_at(0.01)
     tpr01 = tpr_at(0.001)
-    ci_dict = _bootstrap_roc_metrics(labels, scores, n_bootstraps=n_bootstraps, seed=seed)
+    ci_dict = _bootstrap_roc_metrics(eval_labels, eval_scores, n_bootstraps=n_bootstraps, seed=seed)
     return {
         "auc": auc,
         "auc_ci_95": ci_dict["auc_ci_95"],
@@ -143,8 +168,15 @@ def loss_membership_probe(
         "tpr_at_fpr_1pct_ci_95": ci_dict["tpr_at_fpr_1pct_ci_95"],
         "tpr_at_fpr_0_1pct": tpr01,
         "tpr_at_fpr_0_1pct_ci_95": ci_dict["tpr_at_fpr_0_1pct_ci_95"],
-        "members": int(len(mx)),
-        "nonmembers": int(len(ux)),
+        "members": int(np.sum(eval_labels == 1)),
+        "nonmembers": int(np.sum(eval_labels == 0)),
+        "calibration_members": int(len(mx) - np.sum(eval_labels == 1)),
+        "calibration_nonmembers": int(len(ux) - np.sum(eval_labels == 0)),
+        "selected_threshold": selected_threshold,
+        "calibration_advantage": float(np.max(calibration_tpr - calibration_fpr)),
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "population_definition": "label-matched member population versus label-matched unseen population",
     }
 
 
@@ -185,10 +217,28 @@ def tri_population_probe(
     probe.fit(x_train, y_train)
     predicted = probe.predict(x_eval)
     probabilities = probe.predict_proba(x_eval)
+    rng = np.random.default_rng(seed)
+    bootstrap_accuracy = []
+    bootstrap_auc = []
+    for _ in range(100):
+        indices = rng.choice(len(y_eval), size=len(y_eval), replace=True)
+        if len(np.unique(y_eval[indices])) < 3:
+            continue
+        bootstrap_accuracy.append(float((predicted[indices] == y_eval[indices]).mean()))
+        bootstrap_auc.append(float(roc_auc_score(y_eval[indices], probabilities[indices], multi_class="ovr", average="macro")))
+    def _ci(values: list[float]) -> list[float]:
+        return [float(np.percentile(values, 2.5)), float(np.percentile(values, 97.5))] if values else [0.0, 0.0]
     return {
         "probe_accuracy": float((predicted == y_eval).mean()),
         "macro_ovr_auc": float(roc_auc_score(y_eval, probabilities, multi_class="ovr", average="macro")),
+        "probe_accuracy_ci_95": _ci(bootstrap_accuracy),
+        "macro_ovr_auc_ci_95": _ci(bootstrap_auc),
         "confusion_matrix": confusion_matrix(y_eval, predicted, labels=[0, 1, 2]).tolist(),
         "examples_per_population": int(limit),
+        "train_examples_per_population": int(limit // 2),
+        "eval_examples_per_population": int(limit - limit // 2),
+        "population_labels": {"0": "forget", "1": "retain", "2": "unseen"},
+        "feature_definition": "pre/post deletion per-example loss and confidence",
+        "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
         "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA.",
     }
