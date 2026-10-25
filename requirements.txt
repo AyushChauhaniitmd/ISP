@@ -7,4 +7,3 @@ dp-accounting==0.6.0
 Markdown>=3.7
 reportlab==5.0.1
 pytest>=8.0
-

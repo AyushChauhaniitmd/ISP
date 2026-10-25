@@ -1,0 +1,2684 @@
+{
+  "cached_update_reconstruction_baseline": {
+    "alignment_to_retrain": {
+      "forgotten_js_divergence": 0.14284366369247437,
+      "test_js_divergence": 0.13014841079711914
+    },
+    "assumptions": "Uses sensitive per-client server update history; direct accumulation without client calibration; no client participation.",
+    "attack_diagnostics": {
+      "forgotten_vs_unseen_loss_mia": {
+        "advantage": 0.09859154929577463,
+        "advantage_ci_95": [
+          0.07885191197691194,
+          0.3101708679833679
+        ],
+        "auc": 0.542154334457449,
+        "auc_ci_95": [
+          0.4590296160516749,
+          0.6285709396371161
+        ],
+        "calibration_advantage": 0.14285714285714285,
+        "calibration_members": 70,
+        "calibration_nonmembers": 70,
+        "members": 71,
+        "nonmembers": 71,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.6386855244636536,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.0,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.11937083187083183
+        ],
+        "tpr_at_fpr_1pct": 0.0,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.11937083187083183
+        ]
+      },
+      "retained_vs_unseen_loss_mia": {
+        "advantage": -0.06799999999999998,
+        "advantage_ci_95": [
+          0.01639397626366122,
+          0.11354180430023696
+        ],
+        "auc": 0.44859199999999994,
+        "auc_ci_95": [
+          0.3962410697107788,
+          0.5024506405006771
+        ],
+        "calibration_advantage": 0.088,
+        "calibration_members": 250,
+        "calibration_nonmembers": 250,
+        "members": 250,
+        "nonmembers": 250,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.4976467490196228,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.004,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.012297808012093726
+        ],
+        "tpr_at_fpr_1pct": 0.004,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.012297808012093726
+        ]
+      },
+      "tri_population_pre_post_probe": {
+        "confusion_matrix": [
+          [
+            73,
+            15,
+            12
+          ],
+          [
+            24,
+            36,
+            40
+          ],
+          [
+            7,
+            37,
+            56
+          ]
+        ],
+        "eval_examples_per_population": 100,
+        "examples_per_population": 200,
+        "feature_definition": "pre/post deletion per-example loss and confidence",
+        "macro_ovr_auc": 0.7521666666666667,
+        "macro_ovr_auc_ci_95": [
+          0.7040929417289657,
+          0.7833594531667515
+        ],
+        "population_labels": {
+          "0": "forget",
+          "1": "retain",
+          "2": "unseen"
+        },
+        "probe_accuracy": 0.55,
+        "probe_accuracy_ci_95": [
+          0.48825,
+          0.5968333333333333
+        ],
+        "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+        "train_examples_per_population": 100,
+        "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+      }
+    },
+    "communication": {
+      "communicated_bytes": 0
+    },
+    "cost": {
+      "client_updates": 0,
+      "communicated_bytes": 0,
+      "local_examples": 0,
+      "persistent_storage_bytes": 488307456,
+      "rounds": 40,
+      "runtime_seconds": 0.122
+    },
+    "forgotten_client": {
+      "accuracy": 0.3199999928474426,
+      "loss": 2.073925733566284
+    },
+    "forgotten_privacy": {
+      "advantage": 0.09859154929577463,
+      "advantage_ci_95": [
+        0.07885191197691194,
+        0.3101708679833679
+      ],
+      "auc": 0.542154334457449,
+      "auc_ci_95": [
+        0.4590296160516749,
+        0.6285709396371161
+      ],
+      "calibration_advantage": 0.14285714285714285,
+      "calibration_members": 70,
+      "calibration_nonmembers": 70,
+      "members": 71,
+      "nonmembers": 71,
+      "population_definition": "label-matched member population versus label-matched unseen population",
+      "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+      "selected_threshold": -0.6386855244636536,
+      "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+      "tpr_at_fpr_0_1pct": 0.0,
+      "tpr_at_fpr_0_1pct_ci_95": [
+        0.0,
+        0.11937083187083183
+      ],
+      "tpr_at_fpr_1pct": 0.0,
+      "tpr_at_fpr_1pct_ci_95": [
+        0.0,
+        0.11937083187083183
+      ]
+    },
+    "historical_storage": {
+      "persistent_storage_bytes": 488307456
+    },
+    "mia_lira": {
+      "loss_mia_advantage": 0.09859154929577463,
+      "loss_mia_auc": 0.542154334457449,
+      "loss_mia_tpr_0_1pct_fpr": 0.0,
+      "loss_mia_tpr_1pct_fpr": 0.0
+    },
+    "mub": {
+      "classification": "UNLEARNING-BENEFICIAL",
+      "mub_forgotten_js_div": -0.01383,
+      "mub_mia_advantage": 0.04225,
+      "mub_mia_ci_95": [
+        -0.04225,
+        0.04225
+      ],
+      "mub_test_accuracy": -0.0195,
+      "retrain_variability_acc_q90": 0.42292,
+      "retrain_variability_mia_q90": 0.13239
+    },
+    "privacy_implications": "Server holds sensitive client-level updates; does not access raw data at unlearning time; separate exposure regime from DP release.",
+    "retained_data": {
+      "accuracy": 0.4194444417953491,
+      "loss": 1.675286054611206
+    },
+    "retained_privacy": {
+      "advantage": -0.06799999999999998,
+      "advantage_ci_95": [
+        0.01639397626366122,
+        0.11354180430023696
+      ],
+      "auc": 0.44859199999999994,
+      "auc_ci_95": [
+        0.3962410697107788,
+        0.5024506405006771
+      ],
+      "calibration_advantage": 0.088,
+      "calibration_members": 250,
+      "calibration_nonmembers": 250,
+      "members": 250,
+      "nonmembers": 250,
+      "population_definition": "label-matched member population versus label-matched unseen population",
+      "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+      "selected_threshold": -0.4976467490196228,
+      "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+      "tpr_at_fpr_0_1pct": 0.004,
+      "tpr_at_fpr_0_1pct_ci_95": [
+        0.0,
+        0.012297808012093726
+      ],
+      "tpr_at_fpr_1pct": 0.004,
+      "tpr_at_fpr_1pct_ci_95": [
+        0.0,
+        0.012297808012093726
+      ]
+    },
+    "runtime": {
+      "wall_clock_seconds": 0.122
+    },
+    "test": {
+      "accuracy": 0.4092000126838684,
+      "loss": 1.723732829093933
+    },
+    "unseen_privacy": {
+      "confusion_matrix": [
+        [
+          73,
+          15,
+          12
+        ],
+        [
+          24,
+          36,
+          40
+        ],
+        [
+          7,
+          37,
+          56
+        ]
+      ],
+      "eval_examples_per_population": 100,
+      "examples_per_population": 200,
+      "feature_definition": "pre/post deletion per-example loss and confidence",
+      "macro_ovr_auc": 0.7521666666666667,
+      "macro_ovr_auc_ci_95": [
+        0.7040929417289657,
+        0.7833594531667515
+      ],
+      "population_labels": {
+        "0": "forget",
+        "1": "retain",
+        "2": "unseen"
+      },
+      "probe_accuracy": 0.55,
+      "probe_accuracy_ci_95": [
+        0.48825,
+        0.5968333333333333
+      ],
+      "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+      "train_examples_per_population": 100,
+      "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+    },
+    "utility": {
+      "forgotten_accuracy": 0.3199999928474426,
+      "forgotten_loss": 2.073925733566284,
+      "retained_accuracy": 0.4194444417953491,
+      "retained_loss": 1.675286054611206,
+      "test_accuracy": 0.4092000126838684,
+      "test_loss": 1.723732829093933
+    }
+  },
+  "dp_only_no_action": {
+    "alignment_to_retrain": {
+      "forgotten_js_divergence": 0.1290174275636673,
+      "test_js_divergence": 0.12172585725784302
+    },
+    "assumptions": "No post-deletion action taken; relies on pre-existing client-level DP guarantee.",
+    "attack_diagnostics": {
+      "forgotten_vs_unseen_loss_mia": {
+        "advantage": 0.14084507042253522,
+        "advantage_ci_95": [
+          0.10736066000771882,
+          0.3534897463900011
+        ],
+        "auc": 0.5550486014679628,
+        "auc_ci_95": [
+          0.4728379493406816,
+          0.6554995997643055
+        ],
+        "calibration_advantage": 0.18571428571428572,
+        "calibration_members": 70,
+        "calibration_nonmembers": 70,
+        "members": 71,
+        "nonmembers": 71,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.5397995710372925,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.0,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.11594202898550725
+        ],
+        "tpr_at_fpr_1pct": 0.0,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.11594202898550725
+        ]
+      },
+      "retained_vs_unseen_loss_mia": {
+        "advantage": -0.064,
+        "advantage_ci_95": [
+          0.012292870173304951,
+          0.07986828254508424
+        ],
+        "auc": 0.44136000000000003,
+        "auc_ci_95": [
+          0.3892035823046989,
+          0.49897444952362385
+        ],
+        "calibration_advantage": 0.096,
+        "calibration_members": 250,
+        "calibration_nonmembers": 250,
+        "members": 250,
+        "nonmembers": 250,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.6061409115791321,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.008,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.022920702179176727
+        ],
+        "tpr_at_fpr_1pct": 0.008,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.02394663702056697
+        ]
+      },
+      "tri_population_pre_post_probe": {
+        "confusion_matrix": [
+          [
+            19,
+            37,
+            44
+          ],
+          [
+            24,
+            38,
+            38
+          ],
+          [
+            16,
+            34,
+            50
+          ]
+        ],
+        "eval_examples_per_population": 100,
+        "examples_per_population": 200,
+        "feature_definition": "pre/post deletion per-example loss and confidence",
+        "macro_ovr_auc": 0.54585,
+        "macro_ovr_auc_ci_95": [
+          0.5102785250912665,
+          0.5913094936216781
+        ],
+        "population_labels": {
+          "0": "forget",
+          "1": "retain",
+          "2": "unseen"
+        },
+        "probe_accuracy": 0.3566666666666667,
+        "probe_accuracy_ci_95": [
+          0.3115833333333333,
+          0.42333333333333334
+        ],
+        "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+        "train_examples_per_population": 100,
+        "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+      }
+    },
+    "communication": {
+      "communicated_bytes": 478618816
+    },
+    "cost": {
+      "client_updates": 1976,
+      "communicated_bytes": 478618816,
+      "local_examples": 1976000,
+      "persistent_storage_bytes": 488307456,
+      "rounds": 40,
+      "runtime_seconds": 146.837
+    },
+    "forgotten_client": {
+      "accuracy": 0.4300000071525574,
+      "loss": 1.6562047004699707
+    },
+    "forgotten_privacy": {
+      "advantage": 0.14084507042253522,
+      "advantage_ci_95": [
+        0.10736066000771882,
+        0.3534897463900011
+      ],
+      "auc": 0.5550486014679628,
+      "auc_ci_95": [
+        0.4728379493406816,
+        0.6554995997643055
+      ],
+      "calibration_advantage": 0.18571428571428572,
+      "calibration_members": 70,
+      "calibration_nonmembers": 70,
+      "members": 71,
+      "nonmembers": 71,
+      "population_definition": "label-matched member population versus label-matched unseen population",
+      "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+      "selected_threshold": -0.5397995710372925,
+      "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+      "tpr_at_fpr_0_1pct": 0.0,
+      "tpr_at_fpr_0_1pct_ci_95": [
+        0.0,
+        0.11594202898550725
+      ],
+      "tpr_at_fpr_1pct": 0.0,
+      "tpr_at_fpr_1pct_ci_95": [
+        0.0,
+        0.11594202898550725
+      ]
+    },
+    "historical_storage": {
+      "persistent_storage_bytes": 488307456
+    },
+    "mia_lira": {
+      "loss_mia_advantage": 0.14084507042253522,
+      "loss_mia_auc": 0.5550486014679628,
+      "loss_mia_tpr_0_1pct_fpr": 0.0,
+      "loss_mia_tpr_1pct_fpr": 0.0
+    },
+    "mub": {
+      "classification": "INCONCLUSIVE",
+      "mub_forgotten_js_div": 0.0,
+      "mub_mia_advantage": 0.0,
+      "mub_mia_ci_95": [
+        0.0,
+        0.0
+      ],
+      "mub_test_accuracy": 0.0,
+      "retrain_variability_acc_q90": 0.42292,
+      "retrain_variability_mia_q90": 0.13239
+    },
+    "privacy_implications": "Client-level DP mechanism recorded in privacy_ledger.json; no extra privacy loss or raw data access.",
+    "retained_data": {
+      "accuracy": 0.43580809235572815,
+      "loss": 1.6213403940200806
+    },
+    "retained_privacy": {
+      "advantage": -0.064,
+      "advantage_ci_95": [
+        0.012292870173304951,
+        0.07986828254508424
+      ],
+      "auc": 0.44136000000000003,
+      "auc_ci_95": [
+        0.3892035823046989,
+        0.49897444952362385
+      ],
+      "calibration_advantage": 0.096,
+      "calibration_members": 250,
+      "calibration_nonmembers": 250,
+      "members": 250,
+      "nonmembers": 250,
+      "population_definition": "label-matched member population versus label-matched unseen population",
+      "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+      "selected_threshold": -0.6061409115791321,
+      "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+      "tpr_at_fpr_0_1pct": 0.008,
+      "tpr_at_fpr_0_1pct_ci_95": [
+        0.0,
+        0.022920702179176727
+      ],
+      "tpr_at_fpr_1pct": 0.008,
+      "tpr_at_fpr_1pct_ci_95": [
+        0.0,
+        0.02394663702056697
+      ]
+    },
+    "runtime": {
+      "wall_clock_seconds": 146.837
+    },
+    "test": {
+      "accuracy": 0.4287000000476837,
+      "loss": 1.6685086488723755
+    },
+    "unseen_privacy": {
+      "confusion_matrix": [
+        [
+          19,
+          37,
+          44
+        ],
+        [
+          24,
+          38,
+          38
+        ],
+        [
+          16,
+          34,
+          50
+        ]
+      ],
+      "eval_examples_per_population": 100,
+      "examples_per_population": 200,
+      "feature_definition": "pre/post deletion per-example loss and confidence",
+      "macro_ovr_auc": 0.54585,
+      "macro_ovr_auc_ci_95": [
+        0.5102785250912665,
+        0.5913094936216781
+      ],
+      "population_labels": {
+        "0": "forget",
+        "1": "retain",
+        "2": "unseen"
+      },
+      "probe_accuracy": 0.3566666666666667,
+      "probe_accuracy_ci_95": [
+        0.3115833333333333,
+        0.42333333333333334
+      ],
+      "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+      "train_examples_per_population": 100,
+      "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+    },
+    "utility": {
+      "forgotten_accuracy": 0.4300000071525574,
+      "forgotten_loss": 1.6562047004699707,
+      "retained_accuracy": 0.43580809235572815,
+      "retained_loss": 1.6213403940200806,
+      "test_accuracy": 0.4287000000476837,
+      "test_loss": 1.6685086488723755
+    }
+  },
+  "federated_eraser_baseline": {
+    "alignment_to_retrain": {
+      "forgotten_js_divergence": 0.12523582577705383,
+      "test_js_divergence": 0.12533169984817505
+    },
+    "assumptions": "Requires stored historical updates for all clients and rounds; requires retained clients to run local calibration training.",
+    "attack_diagnostics": {
+      "forgotten_vs_unseen_loss_mia": {
+        "advantage": 0.028169014084507005,
+        "advantage_ci_95": [
+          0.11425130834333769,
+          0.30312866292835866
+        ],
+        "auc": 0.5316405475104147,
+        "auc_ci_95": [
+          0.45155603958882645,
+          0.6329219591628502
+        ],
+        "calibration_advantage": 0.11428571428571432,
+        "calibration_members": 70,
+        "calibration_nonmembers": 70,
+        "members": 71,
+        "nonmembers": 71,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -2.3512635231018066,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.0,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.24026639344262277
+        ],
+        "tpr_at_fpr_1pct": 0.0,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.24026639344262277
+        ]
+      },
+      "retained_vs_unseen_loss_mia": {
+        "advantage": -0.020000000000000004,
+        "advantage_ci_95": [
+          0.012228221075820486,
+          0.09076200092336825
+        ],
+        "auc": 0.47393599999999997,
+        "auc_ci_95": [
+          0.43005758139208955,
+          0.5141720920893488
+        ],
+        "calibration_advantage": 0.08399999999999999,
+        "calibration_members": 250,
+        "calibration_nonmembers": 250,
+        "members": 250,
+        "nonmembers": 250,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.5531409382820129,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.004,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.017875298104681785
+        ],
+        "tpr_at_fpr_1pct": 0.012,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.049884165273465474
+        ]
+      },
+      "tri_population_pre_post_probe": {
+        "confusion_matrix": [
+          [
+            34,
+            31,
+            35
+          ],
+          [
+            23,
+            43,
+            34
+          ],
+          [
+            27,
+            28,
+            45
+          ]
+        ],
+        "eval_examples_per_population": 100,
+        "examples_per_population": 200,
+        "feature_definition": "pre/post deletion per-example loss and confidence",
+        "macro_ovr_auc": 0.5487833333333334,
+        "macro_ovr_auc_ci_95": [
+          0.5149363570969763,
+          0.5896606177330469
+        ],
+        "population_labels": {
+          "0": "forget",
+          "1": "retain",
+          "2": "unseen"
+        },
+        "probe_accuracy": 0.4066666666666667,
+        "probe_accuracy_ci_95": [
+          0.36,
+          0.45858333333333323
+        ],
+        "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+        "train_examples_per_population": 100,
+        "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+      }
+    },
+    "communication": {
+      "communicated_bytes": 949486720
+    },
+    "cost": {
+      "client_updates": 1960,
+      "communicated_bytes": 949486720,
+      "local_examples": 784000,
+      "persistent_storage_bytes": 488307456,
+      "rounds": 40,
+      "runtime_seconds": 64.7
+    },
+    "forgotten_client": {
+      "accuracy": 0.36000001430511475,
+      "loss": 1.7892823219299316
+    },
+    "forgotten_privacy": {
+      "advantage": 0.028169014084507005,
+      "advantage_ci_95": [
+        0.11425130834333769,
+        0.30312866292835866
+      ],
+      "auc": 0.5316405475104147,
+      "auc_ci_95": [
+        0.45155603958882645,
+        0.6329219591628502
+      ],
+      "calibration_advantage": 0.11428571428571432,
+      "calibration_members": 70,
+      "calibration_nonmembers": 70,
+      "members": 71,
+      "nonmembers": 71,
+      "population_definition": "label-matched member population versus label-matched unseen population",
+      "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+      "selected_threshold": -2.3512635231018066,
+      "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+      "tpr_at_fpr_0_1pct": 0.0,
+      "tpr_at_fpr_0_1pct_ci_95": [
+        0.0,
+        0.24026639344262277
+      ],
+      "tpr_at_fpr_1pct": 0.0,
+      "tpr_at_fpr_1pct_ci_95": [
+        0.0,
+        0.24026639344262277
+      ]
+    },
+    "historical_storage": {
+      "persistent_storage_bytes": 488307456
+    },
+    "mia_lira": {
+      "loss_mia_advantage": 0.028169014084507005,
+      "loss_mia_auc": 0.5316405475104147,
+      "loss_mia_tpr_0_1pct_fpr": 0.0,
+      "loss_mia_tpr_1pct_fpr": 0.0
+    },
+    "mub": {
+      "classification": "UNLEARNING-BENEFICIAL",
+      "mub_forgotten_js_div": 0.00378,
+      "mub_mia_advantage": 0.02817,
+      "mub_mia_ci_95": [
+        -0.11268,
+        0.05634
+      ],
+      "mub_test_accuracy": -0.0769,
+      "retrain_variability_acc_q90": 0.42292,
+      "retrain_variability_mia_q90": 0.13239
+    },
+    "privacy_implications": "Re-queries retained clients on raw data; not DP post-processing of the final model; server holds sensitive historical updates.",
+    "retained_data": {
+      "accuracy": 0.35848483443260193,
+      "loss": 1.802050232887268
+    },
+    "retained_privacy": {
+      "advantage": -0.020000000000000004,
+      "advantage_ci_95": [
+        0.012228221075820486,
+        0.09076200092336825
+      ],
+      "auc": 0.47393599999999997,
+      "auc_ci_95": [
+        0.43005758139208955,
+        0.5141720920893488
+      ],
+      "calibration_advantage": 0.08399999999999999,
+      "calibration_members": 250,
+      "calibration_nonmembers": 250,
+      "members": 250,
+      "nonmembers": 250,
+      "population_definition": "label-matched member population versus label-matched unseen population",
+      "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+      "selected_threshold": -0.5531409382820129,
+      "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+      "tpr_at_fpr_0_1pct": 0.004,
+      "tpr_at_fpr_0_1pct_ci_95": [
+        0.0,
+        0.017875298104681785
+      ],
+      "tpr_at_fpr_1pct": 0.012,
+      "tpr_at_fpr_1pct_ci_95": [
+        0.0,
+        0.049884165273465474
+      ]
+    },
+    "runtime": {
+      "wall_clock_seconds": 64.7
+    },
+    "test": {
+      "accuracy": 0.35179999470710754,
+      "loss": 1.8163108825683594
+    },
+    "unseen_privacy": {
+      "confusion_matrix": [
+        [
+          34,
+          31,
+          35
+        ],
+        [
+          23,
+          43,
+          34
+        ],
+        [
+          27,
+          28,
+          45
+        ]
+      ],
+      "eval_examples_per_population": 100,
+      "examples_per_population": 200,
+      "feature_definition": "pre/post deletion per-example loss and confidence",
+      "macro_ovr_auc": 0.5487833333333334,
+      "macro_ovr_auc_ci_95": [
+        0.5149363570969763,
+        0.5896606177330469
+      ],
+      "population_labels": {
+        "0": "forget",
+        "1": "retain",
+        "2": "unseen"
+      },
+      "probe_accuracy": 0.4066666666666667,
+      "probe_accuracy_ci_95": [
+        0.36,
+        0.45858333333333323
+      ],
+      "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+      "train_examples_per_population": 100,
+      "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+    },
+    "utility": {
+      "forgotten_accuracy": 0.36000001430511475,
+      "forgotten_loss": 1.7892823219299316,
+      "retained_accuracy": 0.35848483443260193,
+      "retained_loss": 1.802050232887268,
+      "test_accuracy": 0.35179999470710754,
+      "test_loss": 1.8163108825683594
+    }
+  },
+  "full_model": {
+    "alignment_to_retrain": {
+      "forgotten_js_divergence": 0.1290174275636673,
+      "test_js_divergence": 0.12172585725784302
+    },
+    "assumptions": "No post-deletion action taken; relies on pre-existing client-level DP guarantee.",
+    "attack_diagnostics": {
+      "forgotten_vs_unseen_loss_mia": {
+        "advantage": 0.14084507042253522,
+        "advantage_ci_95": [
+          0.10736066000771882,
+          0.3534897463900011
+        ],
+        "auc": 0.5550486014679628,
+        "auc_ci_95": [
+          0.4728379493406816,
+          0.6554995997643055
+        ],
+        "calibration_advantage": 0.18571428571428572,
+        "calibration_members": 70,
+        "calibration_nonmembers": 70,
+        "members": 71,
+        "nonmembers": 71,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.5397995710372925,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.0,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.11594202898550725
+        ],
+        "tpr_at_fpr_1pct": 0.0,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.11594202898550725
+        ]
+      },
+      "retained_vs_unseen_loss_mia": {
+        "advantage": -0.064,
+        "advantage_ci_95": [
+          0.012292870173304951,
+          0.07986828254508424
+        ],
+        "auc": 0.44136000000000003,
+        "auc_ci_95": [
+          0.3892035823046989,
+          0.49897444952362385
+        ],
+        "calibration_advantage": 0.096,
+        "calibration_members": 250,
+        "calibration_nonmembers": 250,
+        "members": 250,
+        "nonmembers": 250,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.6061409115791321,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.008,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.022920702179176727
+        ],
+        "tpr_at_fpr_1pct": 0.008,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.02394663702056697
+        ]
+      },
+      "tri_population_pre_post_probe": {
+        "confusion_matrix": [
+          [
+            19,
+            37,
+            44
+          ],
+          [
+            24,
+            38,
+            38
+          ],
+          [
+            16,
+            34,
+            50
+          ]
+        ],
+        "eval_examples_per_population": 100,
+        "examples_per_population": 200,
+        "feature_definition": "pre/post deletion per-example loss and confidence",
+        "macro_ovr_auc": 0.54585,
+        "macro_ovr_auc_ci_95": [
+          0.5102785250912665,
+          0.5913094936216781
+        ],
+        "population_labels": {
+          "0": "forget",
+          "1": "retain",
+          "2": "unseen"
+        },
+        "probe_accuracy": 0.3566666666666667,
+        "probe_accuracy_ci_95": [
+          0.3115833333333333,
+          0.42333333333333334
+        ],
+        "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+        "train_examples_per_population": 100,
+        "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+      }
+    },
+    "communication": {
+      "communicated_bytes": 478618816
+    },
+    "cost": {
+      "client_updates": 1976,
+      "communicated_bytes": 478618816,
+      "local_examples": 1976000,
+      "persistent_storage_bytes": 488307456,
+      "rounds": 40,
+      "runtime_seconds": 146.837
+    },
+    "forgotten_client": {
+      "accuracy": 0.4300000071525574,
+      "loss": 1.6562047004699707
+    },
+    "forgotten_privacy": {
+      "advantage": 0.14084507042253522,
+      "advantage_ci_95": [
+        0.10736066000771882,
+        0.3534897463900011
+      ],
+      "auc": 0.5550486014679628,
+      "auc_ci_95": [
+        0.4728379493406816,
+        0.6554995997643055
+      ],
+      "calibration_advantage": 0.18571428571428572,
+      "calibration_members": 70,
+      "calibration_nonmembers": 70,
+      "members": 71,
+      "nonmembers": 71,
+      "population_definition": "label-matched member population versus label-matched unseen population",
+      "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+      "selected_threshold": -0.5397995710372925,
+      "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+      "tpr_at_fpr_0_1pct": 0.0,
+      "tpr_at_fpr_0_1pct_ci_95": [
+        0.0,
+        0.11594202898550725
+      ],
+      "tpr_at_fpr_1pct": 0.0,
+      "tpr_at_fpr_1pct_ci_95": [
+        0.0,
+        0.11594202898550725
+      ]
+    },
+    "historical_storage": {
+      "persistent_storage_bytes": 488307456
+    },
+    "mia_lira": {
+      "loss_mia_advantage": 0.14084507042253522,
+      "loss_mia_auc": 0.5550486014679628,
+      "loss_mia_tpr_0_1pct_fpr": 0.0,
+      "loss_mia_tpr_1pct_fpr": 0.0
+    },
+    "mub": {
+      "classification": "INCONCLUSIVE",
+      "mub_forgotten_js_div": 0.0,
+      "mub_mia_advantage": 0.0,
+      "mub_mia_ci_95": [
+        0.0,
+        0.0
+      ],
+      "mub_test_accuracy": 0.0,
+      "retrain_variability_acc_q90": 0.42292,
+      "retrain_variability_mia_q90": 0.13239
+    },
+    "privacy_implications": "Client-level DP mechanism recorded in privacy_ledger.json; no extra privacy loss or raw data access.",
+    "retained_data": {
+      "accuracy": 0.43580809235572815,
+      "loss": 1.6213403940200806
+    },
+    "retained_privacy": {
+      "advantage": -0.064,
+      "advantage_ci_95": [
+        0.012292870173304951,
+        0.07986828254508424
+      ],
+      "auc": 0.44136000000000003,
+      "auc_ci_95": [
+        0.3892035823046989,
+        0.49897444952362385
+      ],
+      "calibration_advantage": 0.096,
+      "calibration_members": 250,
+      "calibration_nonmembers": 250,
+      "members": 250,
+      "nonmembers": 250,
+      "population_definition": "label-matched member population versus label-matched unseen population",
+      "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+      "selected_threshold": -0.6061409115791321,
+      "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+      "tpr_at_fpr_0_1pct": 0.008,
+      "tpr_at_fpr_0_1pct_ci_95": [
+        0.0,
+        0.022920702179176727
+      ],
+      "tpr_at_fpr_1pct": 0.008,
+      "tpr_at_fpr_1pct_ci_95": [
+        0.0,
+        0.02394663702056697
+      ]
+    },
+    "runtime": {
+      "wall_clock_seconds": 146.837
+    },
+    "test": {
+      "accuracy": 0.4287000000476837,
+      "loss": 1.6685086488723755
+    },
+    "unseen_privacy": {
+      "confusion_matrix": [
+        [
+          19,
+          37,
+          44
+        ],
+        [
+          24,
+          38,
+          38
+        ],
+        [
+          16,
+          34,
+          50
+        ]
+      ],
+      "eval_examples_per_population": 100,
+      "examples_per_population": 200,
+      "feature_definition": "pre/post deletion per-example loss and confidence",
+      "macro_ovr_auc": 0.54585,
+      "macro_ovr_auc_ci_95": [
+        0.5102785250912665,
+        0.5913094936216781
+      ],
+      "population_labels": {
+        "0": "forget",
+        "1": "retain",
+        "2": "unseen"
+      },
+      "probe_accuracy": 0.3566666666666667,
+      "probe_accuracy_ci_95": [
+        0.3115833333333333,
+        0.42333333333333334
+      ],
+      "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+      "train_examples_per_population": 100,
+      "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+    },
+    "utility": {
+      "forgotten_accuracy": 0.4300000071525574,
+      "forgotten_loss": 1.6562047004699707,
+      "retained_accuracy": 0.43580809235572815,
+      "retained_loss": 1.6213403940200806,
+      "test_accuracy": 0.4287000000476837,
+      "test_loss": 1.6685086488723755
+    }
+  },
+  "mub_summary": {
+    "cached_update_reconstruction_baseline": {
+      "classification": "UNLEARNING-BENEFICIAL",
+      "mub_forgotten_js_div": -0.01383,
+      "mub_mia_advantage": 0.04225,
+      "mub_mia_ci_95": [
+        -0.04225,
+        0.04225
+      ],
+      "mub_test_accuracy": -0.0195,
+      "retrain_variability_acc_q90": 0.42292,
+      "retrain_variability_mia_q90": 0.13239
+    },
+    "dp_only_no_action": {
+      "classification": "INCONCLUSIVE",
+      "mub_forgotten_js_div": 0.0,
+      "mub_mia_advantage": 0.0,
+      "mub_mia_ci_95": [
+        0.0,
+        0.0
+      ],
+      "mub_test_accuracy": 0.0,
+      "retrain_variability_acc_q90": 0.42292,
+      "retrain_variability_mia_q90": 0.13239
+    },
+    "federated_eraser_baseline": {
+      "classification": "UNLEARNING-BENEFICIAL",
+      "mub_forgotten_js_div": 0.00378,
+      "mub_mia_advantage": 0.02817,
+      "mub_mia_ci_95": [
+        -0.11268,
+        0.05634
+      ],
+      "mub_test_accuracy": -0.0769,
+      "retrain_variability_acc_q90": 0.42292,
+      "retrain_variability_mia_q90": 0.13239
+    },
+    "retained_finetune_baseline": {
+      "classification": "UNLEARNING-BENEFICIAL",
+      "mub_forgotten_js_div": 0.01533,
+      "mub_mia_advantage": 0.05634,
+      "mub_mia_ci_95": [
+        -0.05634,
+        0.05634
+      ],
+      "mub_test_accuracy": 0.0127,
+      "retrain_variability_acc_q90": 0.42292,
+      "retrain_variability_mia_q90": 0.13239
+    }
+  },
+  "retained_finetune_baseline": {
+    "alignment_to_retrain": {
+      "forgotten_js_divergence": 0.11368533968925476,
+      "test_js_divergence": 0.11255473643541336
+    },
+    "assumptions": "Starts from full model and runs fine-tuning rounds on retained clients.",
+    "attack_diagnostics": {
+      "forgotten_vs_unseen_loss_mia": {
+        "advantage": 0.08450704225352113,
+        "advantage_ci_95": [
+          0.08728861906786442,
+          0.3059313079219822
+        ],
+        "auc": 0.5433445744891886,
+        "auc_ci_95": [
+          0.45612275225241317,
+          0.6368827818522941
+        ],
+        "calibration_advantage": 0.14285714285714285,
+        "calibration_members": 70,
+        "calibration_nonmembers": 70,
+        "members": 71,
+        "nonmembers": 71,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.3826500177383423,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.0,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.1752557544757033
+        ],
+        "tpr_at_fpr_1pct": 0.0,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.1752557544757033
+        ]
+      },
+      "retained_vs_unseen_loss_mia": {
+        "advantage": -0.10399999999999998,
+        "advantage_ci_95": [
+          0.01977682415730684,
+          0.08857652984858064
+        ],
+        "auc": 0.45039999999999997,
+        "auc_ci_95": [
+          0.3919573702919416,
+          0.5027678428604709
+        ],
+        "calibration_advantage": 0.09199999999999997,
+        "calibration_members": 250,
+        "calibration_nonmembers": 250,
+        "members": 250,
+        "nonmembers": 250,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.6019819974899292,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.0,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.02358949416342412
+        ],
+        "tpr_at_fpr_1pct": 0.012,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.031412133891213355
+        ]
+      },
+      "tri_population_pre_post_probe": {
+        "confusion_matrix": [
+          [
+            37,
+            31,
+            32
+          ],
+          [
+            25,
+            35,
+            40
+          ],
+          [
+            15,
+            29,
+            56
+          ]
+        ],
+        "eval_examples_per_population": 100,
+        "examples_per_population": 200,
+        "feature_definition": "pre/post deletion per-example loss and confidence",
+        "macro_ovr_auc": 0.6240166666666668,
+        "macro_ovr_auc_ci_95": [
+          0.5818746187153769,
+          0.6594451264772274
+        ],
+        "population_labels": {
+          "0": "forget",
+          "1": "retain",
+          "2": "unseen"
+        },
+        "probe_accuracy": 0.4266666666666667,
+        "probe_accuracy_ci_95": [
+          0.38333333333333336,
+          0.4852499999999999
+        ],
+        "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+        "train_examples_per_population": 100,
+        "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+      }
+    },
+    "communication": {
+      "communicated_bytes": 48443200
+    },
+    "cost": {
+      "client_updates": 200,
+      "communicated_bytes": 48443200,
+      "local_examples": 200000,
+      "persistent_storage_bytes": 0,
+      "rounds": 4,
+      "runtime_seconds": 15.338
+    },
+    "forgotten_client": {
+      "accuracy": 0.48500001430511475,
+      "loss": 1.5118826627731323
+    },
+    "forgotten_privacy": {
+      "advantage": 0.08450704225352113,
+      "advantage_ci_95": [
+        0.08728861906786442,
+        0.3059313079219822
+      ],
+      "auc": 0.5433445744891886,
+      "auc_ci_95": [
+        0.45612275225241317,
+        0.6368827818522941
+      ],
+      "calibration_advantage": 0.14285714285714285,
+      "calibration_members": 70,
+      "calibration_nonmembers": 70,
+      "members": 71,
+      "nonmembers": 71,
+      "population_definition": "label-matched member population versus label-matched unseen population",
+      "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+      "selected_threshold": -0.3826500177383423,
+      "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+      "tpr_at_fpr_0_1pct": 0.0,
+      "tpr_at_fpr_0_1pct_ci_95": [
+        0.0,
+        0.1752557544757033
+      ],
+      "tpr_at_fpr_1pct": 0.0,
+      "tpr_at_fpr_1pct_ci_95": [
+        0.0,
+        0.1752557544757033
+      ]
+    },
+    "historical_storage": {
+      "persistent_storage_bytes": 0
+    },
+    "mia_lira": {
+      "loss_mia_advantage": 0.08450704225352113,
+      "loss_mia_auc": 0.5433445744891886,
+      "loss_mia_tpr_0_1pct_fpr": 0.0,
+      "loss_mia_tpr_1pct_fpr": 0.0
+    },
+    "mub": {
+      "classification": "UNLEARNING-BENEFICIAL",
+      "mub_forgotten_js_div": 0.01533,
+      "mub_mia_advantage": 0.05634,
+      "mub_mia_ci_95": [
+        -0.05634,
+        0.05634
+      ],
+      "mub_test_accuracy": 0.0127,
+      "retrain_variability_acc_q90": 0.42292,
+      "retrain_variability_mia_q90": 0.13239
+    },
+    "privacy_implications": "Accesses retained raw data after deletion request; separate exposure regime, not DP post-processing.",
+    "retained_data": {
+      "accuracy": 0.46070706844329834,
+      "loss": 1.5413941144943237
+    },
+    "retained_privacy": {
+      "advantage": -0.10399999999999998,
+      "advantage_ci_95": [
+        0.01977682415730684,
+        0.08857652984858064
+      ],
+      "auc": 0.45039999999999997,
+      "auc_ci_95": [
+        0.3919573702919416,
+        0.5027678428604709
+      ],
+      "calibration_advantage": 0.09199999999999997,
+      "calibration_members": 250,
+      "calibration_nonmembers": 250,
+      "members": 250,
+      "nonmembers": 250,
+      "population_definition": "label-matched member population versus label-matched unseen population",
+      "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+      "selected_threshold": -0.6019819974899292,
+      "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+      "tpr_at_fpr_0_1pct": 0.0,
+      "tpr_at_fpr_0_1pct_ci_95": [
+        0.0,
+        0.02358949416342412
+      ],
+      "tpr_at_fpr_1pct": 0.012,
+      "tpr_at_fpr_1pct_ci_95": [
+        0.0,
+        0.031412133891213355
+      ]
+    },
+    "runtime": {
+      "wall_clock_seconds": 15.338
+    },
+    "test": {
+      "accuracy": 0.4413999915122986,
+      "loss": 1.6050585508346558
+    },
+    "unseen_privacy": {
+      "confusion_matrix": [
+        [
+          37,
+          31,
+          32
+        ],
+        [
+          25,
+          35,
+          40
+        ],
+        [
+          15,
+          29,
+          56
+        ]
+      ],
+      "eval_examples_per_population": 100,
+      "examples_per_population": 200,
+      "feature_definition": "pre/post deletion per-example loss and confidence",
+      "macro_ovr_auc": 0.6240166666666668,
+      "macro_ovr_auc_ci_95": [
+        0.5818746187153769,
+        0.6594451264772274
+      ],
+      "population_labels": {
+        "0": "forget",
+        "1": "retain",
+        "2": "unseen"
+      },
+      "probe_accuracy": 0.4266666666666667,
+      "probe_accuracy_ci_95": [
+        0.38333333333333336,
+        0.4852499999999999
+      ],
+      "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+      "train_examples_per_population": 100,
+      "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+    },
+    "utility": {
+      "forgotten_accuracy": 0.48500001430511475,
+      "forgotten_loss": 1.5118826627731323,
+      "retained_accuracy": 0.46070706844329834,
+      "retained_loss": 1.5413941144943237,
+      "test_accuracy": 0.4413999915122986,
+      "test_loss": 1.6050585508346558
+    }
+  },
+  "target_retrain": {
+    "alignment_to_retrain": {
+      "forgotten_js_divergence": 0.0,
+      "test_js_divergence": 0.0
+    },
+    "assumptions": "Ground truth gold-standard reference trained from scratch on retained data.",
+    "attack_diagnostics": {
+      "forgotten_vs_unseen_loss_mia": {
+        "advantage": 0.07042253521126762,
+        "advantage_ci_95": [
+          0.0637654961072682,
+          0.3340638044126416
+        ],
+        "auc": 0.5625867883356477,
+        "auc_ci_95": [
+          0.47364884230576715,
+          0.6680761946386947
+        ],
+        "calibration_advantage": 0.21428571428571427,
+        "calibration_members": 70,
+        "calibration_nonmembers": 70,
+        "members": 71,
+        "nonmembers": 71,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.7394799590110779,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.0,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.051838235294117525
+        ],
+        "tpr_at_fpr_1pct": 0.0,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.051838235294117525
+        ]
+      },
+      "retained_vs_unseen_loss_mia": {
+        "advantage": 0.008000000000000007,
+        "advantage_ci_95": [
+          0.013531477582112898,
+          0.13037918092027023
+        ],
+        "auc": 0.471024,
+        "auc_ci_95": [
+          0.4349904128143566,
+          0.5177071524564866
+        ],
+        "calibration_advantage": 0.051999999999999935,
+        "calibration_members": 250,
+        "calibration_nonmembers": 250,
+        "members": 250,
+        "nonmembers": 250,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -4.041870594024658,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.004,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.01430376028202113
+        ],
+        "tpr_at_fpr_1pct": 0.008,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.02642094884584154
+        ]
+      },
+      "tri_population_pre_post_probe": {
+        "confusion_matrix": [
+          [
+            36,
+            31,
+            33
+          ],
+          [
+            43,
+            27,
+            30
+          ],
+          [
+            30,
+            24,
+            46
+          ]
+        ],
+        "eval_examples_per_population": 100,
+        "examples_per_population": 200,
+        "feature_definition": "pre/post deletion per-example loss and confidence",
+        "macro_ovr_auc": 0.5561333333333334,
+        "macro_ovr_auc_ci_95": [
+          0.5093717611389015,
+          0.6012178083795475
+        ],
+        "population_labels": {
+          "0": "forget",
+          "1": "retain",
+          "2": "unseen"
+        },
+        "probe_accuracy": 0.36333333333333334,
+        "probe_accuracy_ci_95": [
+          0.31825,
+          0.41699999999999987
+        ],
+        "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+        "train_examples_per_population": 100,
+        "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+      }
+    },
+    "communication": {
+      "communicated_bytes": 495331720
+    },
+    "cost": {
+      "client_updates": 2045,
+      "communicated_bytes": 495331720,
+      "local_examples": 2045000,
+      "persistent_storage_bytes": 0,
+      "rounds": 40,
+      "runtime_seconds": 152.135
+    },
+    "forgotten_client": {
+      "accuracy": 0.4650000035762787,
+      "loss": 1.5134899616241455
+    },
+    "forgotten_privacy": {
+      "advantage": 0.07042253521126762,
+      "advantage_ci_95": [
+        0.0637654961072682,
+        0.3340638044126416
+      ],
+      "auc": 0.5625867883356477,
+      "auc_ci_95": [
+        0.47364884230576715,
+        0.6680761946386947
+      ],
+      "calibration_advantage": 0.21428571428571427,
+      "calibration_members": 70,
+      "calibration_nonmembers": 70,
+      "members": 71,
+      "nonmembers": 71,
+      "population_definition": "label-matched member population versus label-matched unseen population",
+      "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+      "selected_threshold": -0.7394799590110779,
+      "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+      "tpr_at_fpr_0_1pct": 0.0,
+      "tpr_at_fpr_0_1pct_ci_95": [
+        0.0,
+        0.051838235294117525
+      ],
+      "tpr_at_fpr_1pct": 0.0,
+      "tpr_at_fpr_1pct_ci_95": [
+        0.0,
+        0.051838235294117525
+      ]
+    },
+    "historical_storage": {
+      "persistent_storage_bytes": 0
+    },
+    "mia_lira": {
+      "loss_mia_advantage": 0.07042253521126762,
+      "loss_mia_auc": 0.5625867883356477,
+      "loss_mia_tpr_0_1pct_fpr": 0.0,
+      "loss_mia_tpr_1pct_fpr": 0.0
+    },
+    "privacy_implications": "Internal benchmark reference; not an extra public release under the full-model ledger.",
+    "retained_data": {
+      "accuracy": 0.43398991227149963,
+      "loss": 1.6350047588348389
+    },
+    "retained_privacy": {
+      "advantage": 0.008000000000000007,
+      "advantage_ci_95": [
+        0.013531477582112898,
+        0.13037918092027023
+      ],
+      "auc": 0.471024,
+      "auc_ci_95": [
+        0.4349904128143566,
+        0.5177071524564866
+      ],
+      "calibration_advantage": 0.051999999999999935,
+      "calibration_members": 250,
+      "calibration_nonmembers": 250,
+      "members": 250,
+      "nonmembers": 250,
+      "population_definition": "label-matched member population versus label-matched unseen population",
+      "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+      "selected_threshold": -4.041870594024658,
+      "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+      "tpr_at_fpr_0_1pct": 0.004,
+      "tpr_at_fpr_0_1pct_ci_95": [
+        0.0,
+        0.01430376028202113
+      ],
+      "tpr_at_fpr_1pct": 0.008,
+      "tpr_at_fpr_1pct_ci_95": [
+        0.0,
+        0.02642094884584154
+      ]
+    },
+    "runtime": {
+      "wall_clock_seconds": 152.135
+    },
+    "test": {
+      "accuracy": 0.4081000089645386,
+      "loss": 1.697952151298523
+    },
+    "unseen_privacy": {
+      "confusion_matrix": [
+        [
+          36,
+          31,
+          33
+        ],
+        [
+          43,
+          27,
+          30
+        ],
+        [
+          30,
+          24,
+          46
+        ]
+      ],
+      "eval_examples_per_population": 100,
+      "examples_per_population": 200,
+      "feature_definition": "pre/post deletion per-example loss and confidence",
+      "macro_ovr_auc": 0.5561333333333334,
+      "macro_ovr_auc_ci_95": [
+        0.5093717611389015,
+        0.6012178083795475
+      ],
+      "population_labels": {
+        "0": "forget",
+        "1": "retain",
+        "2": "unseen"
+      },
+      "probe_accuracy": 0.36333333333333334,
+      "probe_accuracy_ci_95": [
+        0.31825,
+        0.41699999999999987
+      ],
+      "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+      "train_examples_per_population": 100,
+      "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+    },
+    "utility": {
+      "forgotten_accuracy": 0.4650000035762787,
+      "forgotten_loss": 1.5134899616241455,
+      "retained_accuracy": 0.43398991227149963,
+      "retained_loss": 1.6350047588348389,
+      "test_accuracy": 0.4081000089645386,
+      "test_loss": 1.697952151298523
+    }
+  },
+  "target_retrain_ensemble": [
+    {
+      "alignment_to_retrain": {
+        "forgotten_js_divergence": 0.11928223818540573,
+        "test_js_divergence": 0.12173081934452057
+      },
+      "assumptions": "Ensemble retrain model for quantifying retrain variability.",
+      "attack_diagnostics": {
+        "forgotten_vs_unseen_loss_mia": {
+          "advantage": 0.07042253521126757,
+          "advantage_ci_95": [
+            0.09968053333233758,
+            0.35530057977204593
+          ],
+          "auc": 0.5544534814520928,
+          "auc_ci_95": [
+            0.4791685640558591,
+            0.6654288612580972
+          ],
+          "calibration_advantage": 0.10000000000000003,
+          "calibration_members": 70,
+          "calibration_nonmembers": 70,
+          "members": 71,
+          "nonmembers": 71,
+          "population_definition": "label-matched member population versus label-matched unseen population",
+          "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+          "selected_threshold": -0.7787734270095825,
+          "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+          "tpr_at_fpr_0_1pct": 0.0,
+          "tpr_at_fpr_0_1pct_ci_95": [
+            0.0,
+            0.24590517241379303
+          ],
+          "tpr_at_fpr_1pct": 0.0,
+          "tpr_at_fpr_1pct_ci_95": [
+            0.0,
+            0.24590517241379303
+          ]
+        },
+        "retained_vs_unseen_loss_mia": {
+          "advantage": -0.03199999999999992,
+          "advantage_ci_95": [
+            0.002215634606938955,
+            0.09415945736345788
+          ],
+          "auc": 0.465824,
+          "auc_ci_95": [
+            0.4207760738490856,
+            0.5067231015426137
+          ],
+          "calibration_advantage": 0.05999999999999994,
+          "calibration_members": 250,
+          "calibration_nonmembers": 250,
+          "members": 250,
+          "nonmembers": 250,
+          "population_definition": "label-matched member population versus label-matched unseen population",
+          "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+          "selected_threshold": -2.1242048740386963,
+          "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+          "tpr_at_fpr_0_1pct": 0.0,
+          "tpr_at_fpr_0_1pct_ci_95": [
+            0.0,
+            0.020496346686822875
+          ],
+          "tpr_at_fpr_1pct": 0.008,
+          "tpr_at_fpr_1pct_ci_95": [
+            0.0,
+            0.03642762723066753
+          ]
+        },
+        "tri_population_pre_post_probe": {
+          "confusion_matrix": [
+            [
+              32,
+              29,
+              39
+            ],
+            [
+              41,
+              30,
+              29
+            ],
+            [
+              29,
+              28,
+              43
+            ]
+          ],
+          "eval_examples_per_population": 100,
+          "examples_per_population": 200,
+          "feature_definition": "pre/post deletion per-example loss and confidence",
+          "macro_ovr_auc": 0.5588166666666666,
+          "macro_ovr_auc_ci_95": [
+            0.5149265103868699,
+            0.596552382068085
+          ],
+          "population_labels": {
+            "0": "forget",
+            "1": "retain",
+            "2": "unseen"
+          },
+          "probe_accuracy": 0.35,
+          "probe_accuracy_ci_95": [
+            0.29808333333333337,
+            0.39666666666666667
+          ],
+          "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+          "train_examples_per_population": 100,
+          "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+        }
+      },
+      "communication": {
+        "communicated_bytes": 477165520
+      },
+      "cost": {
+        "client_updates": 1970,
+        "communicated_bytes": 477165520,
+        "local_examples": 1970000,
+        "persistent_storage_bytes": 0,
+        "rounds": 40,
+        "runtime_seconds": 149.165
+      },
+      "forgotten_client": {
+        "accuracy": 0.44999998807907104,
+        "loss": 1.5785059928894043
+      },
+      "forgotten_privacy": {
+        "advantage": 0.07042253521126757,
+        "advantage_ci_95": [
+          0.09968053333233758,
+          0.35530057977204593
+        ],
+        "auc": 0.5544534814520928,
+        "auc_ci_95": [
+          0.4791685640558591,
+          0.6654288612580972
+        ],
+        "calibration_advantage": 0.10000000000000003,
+        "calibration_members": 70,
+        "calibration_nonmembers": 70,
+        "members": 71,
+        "nonmembers": 71,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.7787734270095825,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.0,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.24590517241379303
+        ],
+        "tpr_at_fpr_1pct": 0.0,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.24590517241379303
+        ]
+      },
+      "historical_storage": {
+        "persistent_storage_bytes": 0
+      },
+      "mia_lira": {
+        "loss_mia_advantage": 0.07042253521126757,
+        "loss_mia_auc": 0.5544534814520928,
+        "loss_mia_tpr_0_1pct_fpr": 0.0,
+        "loss_mia_tpr_1pct_fpr": 0.0
+      },
+      "privacy_implications": "Internal benchmark reference.",
+      "retained_data": {
+        "accuracy": 0.4344949424266815,
+        "loss": 1.6272231340408325
+      },
+      "retained_privacy": {
+        "advantage": -0.03199999999999992,
+        "advantage_ci_95": [
+          0.002215634606938955,
+          0.09415945736345788
+        ],
+        "auc": 0.465824,
+        "auc_ci_95": [
+          0.4207760738490856,
+          0.5067231015426137
+        ],
+        "calibration_advantage": 0.05999999999999994,
+        "calibration_members": 250,
+        "calibration_nonmembers": 250,
+        "members": 250,
+        "nonmembers": 250,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -2.1242048740386963,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.0,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.020496346686822875
+        ],
+        "tpr_at_fpr_1pct": 0.008,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.03642762723066753
+        ]
+      },
+      "runtime": {
+        "wall_clock_seconds": 149.165
+      },
+      "test": {
+        "accuracy": 0.415800005197525,
+        "loss": 1.684980869293213
+      },
+      "unseen_privacy": {
+        "confusion_matrix": [
+          [
+            32,
+            29,
+            39
+          ],
+          [
+            41,
+            30,
+            29
+          ],
+          [
+            29,
+            28,
+            43
+          ]
+        ],
+        "eval_examples_per_population": 100,
+        "examples_per_population": 200,
+        "feature_definition": "pre/post deletion per-example loss and confidence",
+        "macro_ovr_auc": 0.5588166666666666,
+        "macro_ovr_auc_ci_95": [
+          0.5149265103868699,
+          0.596552382068085
+        ],
+        "population_labels": {
+          "0": "forget",
+          "1": "retain",
+          "2": "unseen"
+        },
+        "probe_accuracy": 0.35,
+        "probe_accuracy_ci_95": [
+          0.29808333333333337,
+          0.39666666666666667
+        ],
+        "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+        "train_examples_per_population": 100,
+        "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+      },
+      "utility": {
+        "forgotten_accuracy": 0.44999998807907104,
+        "forgotten_loss": 1.5785059928894043,
+        "retained_accuracy": 0.4344949424266815,
+        "retained_loss": 1.6272231340408325,
+        "test_accuracy": 0.415800005197525,
+        "test_loss": 1.684980869293213
+      }
+    },
+    {
+      "alignment_to_retrain": {
+        "forgotten_js_divergence": 0.10417184978723526,
+        "test_js_divergence": 0.10974480211734772
+      },
+      "assumptions": "Ensemble retrain model for quantifying retrain variability.",
+      "attack_diagnostics": {
+        "forgotten_vs_unseen_loss_mia": {
+          "advantage": 0.056338028169014065,
+          "advantage_ci_95": [
+            0.07496025437201907,
+            0.26847641759406443
+          ],
+          "auc": 0.53679825431462,
+          "auc_ci_95": [
+            0.4525094789848889,
+            0.6303869047619047
+          ],
+          "calibration_advantage": 0.14285714285714285,
+          "calibration_members": 70,
+          "calibration_nonmembers": 70,
+          "members": 71,
+          "nonmembers": 71,
+          "population_definition": "label-matched member population versus label-matched unseen population",
+          "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+          "selected_threshold": -0.6729674935340881,
+          "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+          "tpr_at_fpr_0_1pct": 0.0,
+          "tpr_at_fpr_0_1pct_ci_95": [
+            0.0,
+            0.05326086956521653
+          ],
+          "tpr_at_fpr_1pct": 0.0,
+          "tpr_at_fpr_1pct_ci_95": [
+            0.0,
+            0.05326086956521653
+          ]
+        },
+        "retained_vs_unseen_loss_mia": {
+          "advantage": -0.03199999999999992,
+          "advantage_ci_95": [
+            0.015827302178108613,
+            0.13028811524609843
+          ],
+          "auc": 0.49529600000000007,
+          "auc_ci_95": [
+            0.44951591765686233,
+            0.5379753487582218
+          ],
+          "calibration_advantage": 0.08799999999999997,
+          "calibration_members": 250,
+          "calibration_nonmembers": 250,
+          "members": 250,
+          "nonmembers": 250,
+          "population_definition": "label-matched member population versus label-matched unseen population",
+          "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+          "selected_threshold": -1.483030080795288,
+          "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+          "tpr_at_fpr_0_1pct": 0.008,
+          "tpr_at_fpr_0_1pct_ci_95": [
+            0.0,
+            0.02128682044617716
+          ],
+          "tpr_at_fpr_1pct": 0.012,
+          "tpr_at_fpr_1pct_ci_95": [
+            0.0,
+            0.0405092592592592
+          ]
+        },
+        "tri_population_pre_post_probe": {
+          "confusion_matrix": [
+            [
+              33,
+              29,
+              38
+            ],
+            [
+              31,
+              42,
+              27
+            ],
+            [
+              33,
+              27,
+              40
+            ]
+          ],
+          "eval_examples_per_population": 100,
+          "examples_per_population": 200,
+          "feature_definition": "pre/post deletion per-example loss and confidence",
+          "macro_ovr_auc": 0.5572166666666667,
+          "macro_ovr_auc_ci_95": [
+            0.5174963077934845,
+            0.5960334324398106
+          ],
+          "population_labels": {
+            "0": "forget",
+            "1": "retain",
+            "2": "unseen"
+          },
+          "probe_accuracy": 0.38333333333333336,
+          "probe_accuracy_ci_95": [
+            0.3431666666666667,
+            0.43016666666666664
+          ],
+          "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+          "train_examples_per_population": 100,
+          "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+        }
+      },
+      "communication": {
+        "communicated_bytes": 487096376
+      },
+      "cost": {
+        "client_updates": 2011,
+        "communicated_bytes": 487096376,
+        "local_examples": 2011000,
+        "persistent_storage_bytes": 0,
+        "rounds": 40,
+        "runtime_seconds": 149.567
+      },
+      "forgotten_client": {
+        "accuracy": 0.4099999964237213,
+        "loss": 1.6423234939575195
+      },
+      "forgotten_privacy": {
+        "advantage": 0.056338028169014065,
+        "advantage_ci_95": [
+          0.07496025437201907,
+          0.26847641759406443
+        ],
+        "auc": 0.53679825431462,
+        "auc_ci_95": [
+          0.4525094789848889,
+          0.6303869047619047
+        ],
+        "calibration_advantage": 0.14285714285714285,
+        "calibration_members": 70,
+        "calibration_nonmembers": 70,
+        "members": 71,
+        "nonmembers": 71,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.6729674935340881,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.0,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.05326086956521653
+        ],
+        "tpr_at_fpr_1pct": 0.0,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.05326086956521653
+        ]
+      },
+      "historical_storage": {
+        "persistent_storage_bytes": 0
+      },
+      "mia_lira": {
+        "loss_mia_advantage": 0.056338028169014065,
+        "loss_mia_auc": 0.53679825431462,
+        "loss_mia_tpr_0_1pct_fpr": 0.0,
+        "loss_mia_tpr_1pct_fpr": 0.0
+      },
+      "privacy_implications": "Internal benchmark reference.",
+      "retained_data": {
+        "accuracy": 0.4420202076435089,
+        "loss": 1.6104545593261719
+      },
+      "retained_privacy": {
+        "advantage": -0.03199999999999992,
+        "advantage_ci_95": [
+          0.015827302178108613,
+          0.13028811524609843
+        ],
+        "auc": 0.49529600000000007,
+        "auc_ci_95": [
+          0.44951591765686233,
+          0.5379753487582218
+        ],
+        "calibration_advantage": 0.08799999999999997,
+        "calibration_members": 250,
+        "calibration_nonmembers": 250,
+        "members": 250,
+        "nonmembers": 250,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -1.483030080795288,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.008,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.02128682044617716
+        ],
+        "tpr_at_fpr_1pct": 0.012,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.0405092592592592
+        ]
+      },
+      "runtime": {
+        "wall_clock_seconds": 149.567
+      },
+      "test": {
+        "accuracy": 0.4189000129699707,
+        "loss": 1.6758161783218384
+      },
+      "unseen_privacy": {
+        "confusion_matrix": [
+          [
+            33,
+            29,
+            38
+          ],
+          [
+            31,
+            42,
+            27
+          ],
+          [
+            33,
+            27,
+            40
+          ]
+        ],
+        "eval_examples_per_population": 100,
+        "examples_per_population": 200,
+        "feature_definition": "pre/post deletion per-example loss and confidence",
+        "macro_ovr_auc": 0.5572166666666667,
+        "macro_ovr_auc_ci_95": [
+          0.5174963077934845,
+          0.5960334324398106
+        ],
+        "population_labels": {
+          "0": "forget",
+          "1": "retain",
+          "2": "unseen"
+        },
+        "probe_accuracy": 0.38333333333333336,
+        "probe_accuracy_ci_95": [
+          0.3431666666666667,
+          0.43016666666666664
+        ],
+        "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+        "train_examples_per_population": 100,
+        "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+      },
+      "utility": {
+        "forgotten_accuracy": 0.4099999964237213,
+        "forgotten_loss": 1.6423234939575195,
+        "retained_accuracy": 0.4420202076435089,
+        "retained_loss": 1.6104545593261719,
+        "test_accuracy": 0.4189000129699707,
+        "test_loss": 1.6758161783218384
+      }
+    },
+    {
+      "alignment_to_retrain": {
+        "forgotten_js_divergence": 0.12404745072126389,
+        "test_js_divergence": 0.11741714924573898
+      },
+      "assumptions": "Ensemble retrain model for quantifying retrain variability.",
+      "attack_diagnostics": {
+        "forgotten_vs_unseen_loss_mia": {
+          "advantage": 0.15492957746478875,
+          "advantage_ci_95": [
+            0.13400356952988535,
+            0.36958757682177346
+          ],
+          "auc": 0.5967070025788535,
+          "auc_ci_95": [
+            0.5383928571428571,
+            0.6875168208578637
+          ],
+          "calibration_advantage": 0.12857142857142861,
+          "calibration_members": 70,
+          "calibration_nonmembers": 70,
+          "members": 71,
+          "nonmembers": 71,
+          "population_definition": "label-matched member population versus label-matched unseen population",
+          "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+          "selected_threshold": -0.882404625415802,
+          "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+          "tpr_at_fpr_0_1pct": 0.07042253521126761,
+          "tpr_at_fpr_0_1pct_ci_95": [
+            0.021620256007186166,
+            0.1419014084507042
+          ],
+          "tpr_at_fpr_1pct": 0.07042253521126761,
+          "tpr_at_fpr_1pct_ci_95": [
+            0.021620256007186166,
+            0.1419014084507042
+          ]
+        },
+        "retained_vs_unseen_loss_mia": {
+          "advantage": -0.055999999999999994,
+          "advantage_ci_95": [
+            0.019663985222894562,
+            0.12890720684682538
+          ],
+          "auc": 0.484992,
+          "auc_ci_95": [
+            0.4362303187403994,
+            0.5377652668501504
+          ],
+          "calibration_advantage": 0.09200000000000003,
+          "calibration_members": 250,
+          "calibration_nonmembers": 250,
+          "members": 250,
+          "nonmembers": 250,
+          "population_definition": "label-matched member population versus label-matched unseen population",
+          "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+          "selected_threshold": -0.702881932258606,
+          "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+          "tpr_at_fpr_0_1pct": 0.0,
+          "tpr_at_fpr_0_1pct_ci_95": [
+            0.0,
+            0.01640126318618558
+          ],
+          "tpr_at_fpr_1pct": 0.008,
+          "tpr_at_fpr_1pct_ci_95": [
+            0.0,
+            0.03299323198313097
+          ]
+        },
+        "tri_population_pre_post_probe": {
+          "confusion_matrix": [
+            [
+              13,
+              48,
+              39
+            ],
+            [
+              18,
+              49,
+              33
+            ],
+            [
+              8,
+              44,
+              48
+            ]
+          ],
+          "eval_examples_per_population": 100,
+          "examples_per_population": 200,
+          "feature_definition": "pre/post deletion per-example loss and confidence",
+          "macro_ovr_auc": 0.5538666666666666,
+          "macro_ovr_auc_ci_95": [
+            0.5150285195476191,
+            0.6089686137911299
+          ],
+          "population_labels": {
+            "0": "forget",
+            "1": "retain",
+            "2": "unseen"
+          },
+          "probe_accuracy": 0.36666666666666664,
+          "probe_accuracy_ci_95": [
+            0.32808333333333334,
+            0.42174999999999996
+          ],
+          "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+          "train_examples_per_population": 100,
+          "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+        }
+      },
+      "communication": {
+        "communicated_bytes": 489518536
+      },
+      "cost": {
+        "client_updates": 2021,
+        "communicated_bytes": 489518536,
+        "local_examples": 2021000,
+        "persistent_storage_bytes": 0,
+        "rounds": 40,
+        "runtime_seconds": 152.573
+      },
+      "forgotten_client": {
+        "accuracy": 0.4300000071525574,
+        "loss": 1.5734199285507202
+      },
+      "forgotten_privacy": {
+        "advantage": 0.15492957746478875,
+        "advantage_ci_95": [
+          0.13400356952988535,
+          0.36958757682177346
+        ],
+        "auc": 0.5967070025788535,
+        "auc_ci_95": [
+          0.5383928571428571,
+          0.6875168208578637
+        ],
+        "calibration_advantage": 0.12857142857142861,
+        "calibration_members": 70,
+        "calibration_nonmembers": 70,
+        "members": 71,
+        "nonmembers": 71,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.882404625415802,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.07042253521126761,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.021620256007186166,
+          0.1419014084507042
+        ],
+        "tpr_at_fpr_1pct": 0.07042253521126761,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.021620256007186166,
+          0.1419014084507042
+        ]
+      },
+      "historical_storage": {
+        "persistent_storage_bytes": 0
+      },
+      "mia_lira": {
+        "loss_mia_advantage": 0.15492957746478875,
+        "loss_mia_auc": 0.5967070025788535,
+        "loss_mia_tpr_0_1pct_fpr": 0.07042253521126761,
+        "loss_mia_tpr_1pct_fpr": 0.07042253521126761
+      },
+      "privacy_implications": "Internal benchmark reference.",
+      "retained_data": {
+        "accuracy": 0.43833333253860474,
+        "loss": 1.6256420612335205
+      },
+      "retained_privacy": {
+        "advantage": -0.055999999999999994,
+        "advantage_ci_95": [
+          0.019663985222894562,
+          0.12890720684682538
+        ],
+        "auc": 0.484992,
+        "auc_ci_95": [
+          0.4362303187403994,
+          0.5377652668501504
+        ],
+        "calibration_advantage": 0.09200000000000003,
+        "calibration_members": 250,
+        "calibration_nonmembers": 250,
+        "members": 250,
+        "nonmembers": 250,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.702881932258606,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.0,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.01640126318618558
+        ],
+        "tpr_at_fpr_1pct": 0.008,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.03299323198313097
+        ]
+      },
+      "runtime": {
+        "wall_clock_seconds": 152.573
+      },
+      "test": {
+        "accuracy": 0.42559999227523804,
+        "loss": 1.6661810874938965
+      },
+      "unseen_privacy": {
+        "confusion_matrix": [
+          [
+            13,
+            48,
+            39
+          ],
+          [
+            18,
+            49,
+            33
+          ],
+          [
+            8,
+            44,
+            48
+          ]
+        ],
+        "eval_examples_per_population": 100,
+        "examples_per_population": 200,
+        "feature_definition": "pre/post deletion per-example loss and confidence",
+        "macro_ovr_auc": 0.5538666666666666,
+        "macro_ovr_auc_ci_95": [
+          0.5150285195476191,
+          0.6089686137911299
+        ],
+        "population_labels": {
+          "0": "forget",
+          "1": "retain",
+          "2": "unseen"
+        },
+        "probe_accuracy": 0.36666666666666664,
+        "probe_accuracy_ci_95": [
+          0.32808333333333334,
+          0.42174999999999996
+        ],
+        "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+        "train_examples_per_population": 100,
+        "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+      },
+      "utility": {
+        "forgotten_accuracy": 0.4300000071525574,
+        "forgotten_loss": 1.5734199285507202,
+        "retained_accuracy": 0.43833333253860474,
+        "retained_loss": 1.6256420612335205,
+        "test_accuracy": 0.42559999227523804,
+        "test_loss": 1.6661810874938965
+      }
+    },
+    {
+      "alignment_to_retrain": {
+        "forgotten_js_divergence": 0.12414131313562393,
+        "test_js_divergence": 0.12625859677791595
+      },
+      "assumptions": "Ensemble retrain model for quantifying retrain variability.",
+      "attack_diagnostics": {
+        "forgotten_vs_unseen_loss_mia": {
+          "advantage": 0.09859154929577466,
+          "advantage_ci_95": [
+            0.06703590785907862,
+            0.3443181818181818
+          ],
+          "auc": 0.5584209482245586,
+          "auc_ci_95": [
+            0.47282016594516596,
+            0.6792513918502724
+          ],
+          "calibration_advantage": 0.11428571428571428,
+          "calibration_members": 70,
+          "calibration_nonmembers": 70,
+          "members": 71,
+          "nonmembers": 71,
+          "population_definition": "label-matched member population versus label-matched unseen population",
+          "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+          "selected_threshold": -0.38010504841804504,
+          "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+          "tpr_at_fpr_0_1pct": 0.028169014084507043,
+          "tpr_at_fpr_0_1pct_ci_95": [
+            0.0,
+            0.11813706563706558
+          ],
+          "tpr_at_fpr_1pct": 0.028169014084507043,
+          "tpr_at_fpr_1pct_ci_95": [
+            0.0,
+            0.11813706563706558
+          ]
+        },
+        "retained_vs_unseen_loss_mia": {
+          "advantage": -0.016000000000000014,
+          "advantage_ci_95": [
+            0.012250030031592491,
+            0.11023446156651108
+          ],
+          "auc": 0.48048,
+          "auc_ci_95": [
+            0.4305498867652495,
+            0.527402313398164
+          ],
+          "calibration_advantage": 0.10000000000000003,
+          "calibration_members": 250,
+          "calibration_nonmembers": 250,
+          "members": 250,
+          "nonmembers": 250,
+          "population_definition": "label-matched member population versus label-matched unseen population",
+          "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+          "selected_threshold": -0.9319552779197693,
+          "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+          "tpr_at_fpr_0_1pct": 0.008,
+          "tpr_at_fpr_0_1pct_ci_95": [
+            0.0,
+            0.020379082039028273
+          ],
+          "tpr_at_fpr_1pct": 0.008,
+          "tpr_at_fpr_1pct_ci_95": [
+            0.0,
+            0.03942410568916592
+          ]
+        },
+        "tri_population_pre_post_probe": {
+          "confusion_matrix": [
+            [
+              24,
+              40,
+              36
+            ],
+            [
+              20,
+              48,
+              32
+            ],
+            [
+              22,
+              32,
+              46
+            ]
+          ],
+          "eval_examples_per_population": 100,
+          "examples_per_population": 200,
+          "feature_definition": "pre/post deletion per-example loss and confidence",
+          "macro_ovr_auc": 0.5748166666666666,
+          "macro_ovr_auc_ci_95": [
+            0.5329281186259693,
+            0.6225968546993043
+          ],
+          "population_labels": {
+            "0": "forget",
+            "1": "retain",
+            "2": "unseen"
+          },
+          "probe_accuracy": 0.3933333333333333,
+          "probe_accuracy_ci_95": [
+            0.34491666666666665,
+            0.4469999999999999
+          ],
+          "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+          "train_examples_per_population": 100,
+          "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+        }
+      },
+      "communication": {
+        "communicated_bytes": 479345464
+      },
+      "cost": {
+        "client_updates": 1979,
+        "communicated_bytes": 479345464,
+        "local_examples": 1979000,
+        "persistent_storage_bytes": 0,
+        "rounds": 40,
+        "runtime_seconds": 149.156
+      },
+      "forgotten_client": {
+        "accuracy": 0.46000000834465027,
+        "loss": 1.5696072578430176
+      },
+      "forgotten_privacy": {
+        "advantage": 0.09859154929577466,
+        "advantage_ci_95": [
+          0.06703590785907862,
+          0.3443181818181818
+        ],
+        "auc": 0.5584209482245586,
+        "auc_ci_95": [
+          0.47282016594516596,
+          0.6792513918502724
+        ],
+        "calibration_advantage": 0.11428571428571428,
+        "calibration_members": 70,
+        "calibration_nonmembers": 70,
+        "members": 71,
+        "nonmembers": 71,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.38010504841804504,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.028169014084507043,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.11813706563706558
+        ],
+        "tpr_at_fpr_1pct": 0.028169014084507043,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.11813706563706558
+        ]
+      },
+      "historical_storage": {
+        "persistent_storage_bytes": 0
+      },
+      "mia_lira": {
+        "loss_mia_advantage": 0.09859154929577466,
+        "loss_mia_auc": 0.5584209482245586,
+        "loss_mia_tpr_0_1pct_fpr": 0.028169014084507043,
+        "loss_mia_tpr_1pct_fpr": 0.028169014084507043
+      },
+      "privacy_implications": "Internal benchmark reference.",
+      "retained_data": {
+        "accuracy": 0.43878787755966187,
+        "loss": 1.6083661317825317
+      },
+      "retained_privacy": {
+        "advantage": -0.016000000000000014,
+        "advantage_ci_95": [
+          0.012250030031592491,
+          0.11023446156651108
+        ],
+        "auc": 0.48048,
+        "auc_ci_95": [
+          0.4305498867652495,
+          0.527402313398164
+        ],
+        "calibration_advantage": 0.10000000000000003,
+        "calibration_members": 250,
+        "calibration_nonmembers": 250,
+        "members": 250,
+        "nonmembers": 250,
+        "population_definition": "label-matched member population versus label-matched unseen population",
+        "score_definition": "negative per-example cross-entropy loss; higher means more member-like",
+        "selected_threshold": -0.9319552779197693,
+        "threshold_selection": "maximum TPR-FPR on calibration split, applied once to held-out evaluation split",
+        "tpr_at_fpr_0_1pct": 0.008,
+        "tpr_at_fpr_0_1pct_ci_95": [
+          0.0,
+          0.020379082039028273
+        ],
+        "tpr_at_fpr_1pct": 0.008,
+        "tpr_at_fpr_1pct_ci_95": [
+          0.0,
+          0.03942410568916592
+        ]
+      },
+      "runtime": {
+        "wall_clock_seconds": 149.156
+      },
+      "test": {
+        "accuracy": 0.41769999265670776,
+        "loss": 1.6772010326385498
+      },
+      "unseen_privacy": {
+        "confusion_matrix": [
+          [
+            24,
+            40,
+            36
+          ],
+          [
+            20,
+            48,
+            32
+          ],
+          [
+            22,
+            32,
+            46
+          ]
+        ],
+        "eval_examples_per_population": 100,
+        "examples_per_population": 200,
+        "feature_definition": "pre/post deletion per-example loss and confidence",
+        "macro_ovr_auc": 0.5748166666666666,
+        "macro_ovr_auc_ci_95": [
+          0.5329281186259693,
+          0.6225968546993043
+        ],
+        "population_labels": {
+          "0": "forget",
+          "1": "retain",
+          "2": "unseen"
+        },
+        "probe_accuracy": 0.3933333333333333,
+        "probe_accuracy_ci_95": [
+          0.34491666666666665,
+          0.4469999999999999
+        ],
+        "split_definition": "stratified 50/50 train/evaluation split, random_state=seed",
+        "train_examples_per_population": 100,
+        "warning": "Baseline pre/post loss-confidence probe, not a reproduction of TC-UMIA."
+      },
+      "utility": {
+        "forgotten_accuracy": 0.46000000834465027,
+        "forgotten_loss": 1.5696072578430176,
+        "retained_accuracy": 0.43878787755966187,
+        "retained_loss": 1.6083661317825317,
+        "test_accuracy": 0.41769999265670776,
+        "test_loss": 1.6772010326385498
+      }
+    }
+  ]
+}

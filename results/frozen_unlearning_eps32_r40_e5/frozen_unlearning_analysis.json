@@ -1,0 +1,932 @@
+{
+  "run_count": 3,
+  "selected_seeds": [
+    20260918,
+    20260919,
+    20260920
+  ],
+  "selected_runs": [
+    "multiclass_cnn_frozen_unlearning_eps32_r40_e5_20261012T190106Z_seed20260918",
+    "multiclass_cnn_frozen_unlearning_eps32_r40_e5_20261012T201303Z_seed20260919",
+    "multiclass_cnn_frozen_unlearning_eps32_r40_e5_20261012T203117Z_seed20260920"
+  ],
+  "deduplication": "latest timestamped run selected per seed",
+  "attack_protocol": {
+    "loss_mia": "label-matched member versus unseen loss attack; threshold selected on calibration split and evaluated on disjoint held-out split",
+    "advantage": "held-out TPR minus held-out FPR at the calibration-selected threshold",
+    "auc": "ROC AUC on held-out scores; threshold-independent",
+    "tri_population": "forget/retain/unseen logistic probe using pre/post loss-confidence features and stratified 50/50 train/evaluation split"
+  },
+  "methods": {
+    "dp_only_no_action": {
+      "test_accuracy": {
+        "mean": 0.4225,
+        "ci_95_across_seeds": [
+          0.409938,
+          0.435062
+        ],
+        "per_seed": [
+          0.43369999527931213,
+          0.4223000109195709,
+          0.4115000069141388
+        ]
+      },
+      "forgotten_accuracy": {
+        "mean": 0.506667,
+        "ci_95_across_seeds": [
+          0.462718,
+          0.550615
+        ],
+        "per_seed": [
+          0.4749999940395355,
+          0.550000011920929,
+          0.4950000047683716
+        ]
+      },
+      "retained_accuracy": {
+        "mean": 0.438704,
+        "ci_95_across_seeds": [
+          0.437789,
+          0.439619
+        ],
+        "per_seed": [
+          0.43949493765830994,
+          0.4378787875175476,
+          0.4387373626232147
+        ]
+      },
+      "forgotten_mia_auc": {
+        "mean": 0.54309,
+        "ci_95_across_seeds": [
+          0.486748,
+          0.599433
+        ],
+        "per_seed": [
+          0.5381018174088639,
+          0.4959829867674858,
+          0.5951865873445106
+        ]
+      },
+      "forgotten_mia_advantage": {
+        "mean": 0.059191,
+        "ci_95_across_seeds": [
+          -0.013864,
+          0.132247
+        ],
+        "per_seed": [
+          0.07216494845360832,
+          -0.010869565217391297,
+          0.11627906976744184
+        ]
+      },
+      "retained_mia_auc": {
+        "mean": 0.52712,
+        "ci_95_across_seeds": [
+          0.500332,
+          0.553908
+        ],
+        "per_seed": [
+          0.541744,
+          0.499808,
+          0.539808
+        ]
+      },
+      "retained_mia_advantage": {
+        "mean": 0.025333,
+        "ci_95_across_seeds": [
+          -0.025543,
+          0.07621
+        ],
+        "per_seed": [
+          0.03600000000000003,
+          -0.023999999999999966,
+          0.06399999999999995
+        ]
+      },
+      "forgotten_js": {
+        "mean": 0.11131,
+        "ci_95_across_seeds": [
+          0.09693,
+          0.12569
+        ],
+        "per_seed": [
+          0.12564429640769958,
+          0.10142503678798676,
+          0.1068604588508606
+        ]
+      },
+      "test_js": {
+        "mean": 0.120335,
+        "ci_95_across_seeds": [
+          0.112866,
+          0.127804
+        ],
+        "per_seed": [
+          0.12795287370681763,
+          0.11631422489881516,
+          0.11673832684755325
+        ]
+      },
+      "mub_accuracy": {
+        "mean": 0.0,
+        "ci_95_across_seeds": [
+          0.0,
+          0.0
+        ],
+        "per_seed": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "mub_js": {
+        "mean": 0.0,
+        "ci_95_across_seeds": [
+          0.0,
+          0.0
+        ],
+        "per_seed": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "mub_mia": {
+        "mean": 0.0,
+        "ci_95_across_seeds": [
+          0.0,
+          0.0
+        ],
+        "per_seed": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "runtime_seconds": {
+        "mean": 151.214,
+        "ci_95_across_seeds": [
+          144.112335,
+          158.315665
+        ],
+        "per_seed": [
+          151.428,
+          144.834,
+          157.38
+        ]
+      },
+      "persistent_storage_bytes": {
+        "mean": 496542800.0,
+        "ci_95_across_seeds": [
+          486844392.315474,
+          506241207.684526
+        ],
+        "per_seed": [
+          505747008.0,
+          488791888.0,
+          495089504.0
+        ]
+      },
+      "communicated_bytes": {
+        "mean": 486854160.0,
+        "ci_95_across_seeds": [
+          477155752.315474,
+          496552567.684526
+        ],
+        "per_seed": [
+          496058368.0,
+          479103248.0,
+          485400864.0
+        ]
+      },
+      "classifications": [
+        "INCONCLUSIVE",
+        "REDUNDANT",
+        "REDUNDANT"
+      ]
+    },
+    "retained_finetune_baseline": {
+      "test_accuracy": {
+        "mean": 0.441167,
+        "ci_95_across_seeds": [
+          0.431128,
+          0.451206
+        ],
+        "per_seed": [
+          0.448199987411499,
+          0.4440999925136566,
+          0.4311999976634979
+        ]
+      },
+      "forgotten_accuracy": {
+        "mean": 0.521667,
+        "ci_95_across_seeds": [
+          0.455361,
+          0.587973
+        ],
+        "per_seed": [
+          0.45500001311302185,
+          0.5649999976158142,
+          0.5450000166893005
+        ]
+      },
+      "retained_accuracy": {
+        "mean": 0.463317,
+        "ci_95_across_seeds": [
+          0.462647,
+          0.463986
+        ],
+        "per_seed": [
+          0.4628787934780121,
+          0.46398991346359253,
+          0.4630807936191559
+        ]
+      },
+      "forgotten_mia_auc": {
+        "mean": 0.537289,
+        "ci_95_across_seeds": [
+          0.475127,
+          0.599451
+        ],
+        "per_seed": [
+          0.5265171644170474,
+          0.4885396975425331,
+          0.5968090859924283
+        ]
+      },
+      "forgotten_mia_advantage": {
+        "mean": 0.083821,
+        "ci_95_across_seeds": [
+          -0.029323,
+          0.196965
+        ],
+        "per_seed": [
+          0.010309278350515427,
+          0.04347826086956519,
+          0.19767441860465115
+        ]
+      },
+      "retained_mia_auc": {
+        "mean": 0.528107,
+        "ci_95_across_seeds": [
+          0.507014,
+          0.549199
+        ],
+        "per_seed": [
+          0.5358240000000001,
+          0.5068480000000001,
+          0.541648
+        ]
+      },
+      "retained_mia_advantage": {
+        "mean": 0.038667,
+        "ci_95_across_seeds": [
+          -0.006673,
+          0.084006
+        ],
+        "per_seed": [
+          0.03600000000000003,
+          0.0,
+          0.08000000000000002
+        ]
+      },
+      "forgotten_js": {
+        "mean": 0.105249,
+        "ci_95_across_seeds": [
+          0.093625,
+          0.116872
+        ],
+        "per_seed": [
+          0.1161544919013977,
+          0.09575887024402618,
+          0.10383214801549911
+        ]
+      },
+      "test_js": {
+        "mean": 0.114362,
+        "ci_95_across_seeds": [
+          0.109275,
+          0.119449
+        ],
+        "per_seed": [
+          0.11916590481996536,
+          0.11025765538215637,
+          0.11366189271211624
+        ]
+      },
+      "mub_accuracy": {
+        "mean": 0.018667,
+        "ci_95_across_seeds": [
+          0.014414,
+          0.022919
+        ],
+        "per_seed": [
+          0.0145,
+          0.0218,
+          0.0197
+        ]
+      },
+      "mub_js": {
+        "mean": 0.006063,
+        "ci_95_across_seeds": [
+          0.002388,
+          0.009739
+        ],
+        "per_seed": [
+          0.00949,
+          0.00567,
+          0.00303
+        ]
+      },
+      "mub_mia": {
+        "mean": -0.017383,
+        "ci_95_across_seeds": [
+          -0.099802,
+          0.065036
+        ],
+        "per_seed": [
+          0.06186,
+          -0.03261,
+          -0.0814
+        ]
+      },
+      "runtime_seconds": {
+        "mean": 15.837,
+        "ci_95_across_seeds": [
+          12.617494,
+          19.056506
+        ],
+        "per_seed": [
+          13.786,
+          14.64,
+          19.085
+        ]
+      },
+      "persistent_storage_bytes": {
+        "mean": 0.0,
+        "ci_95_across_seeds": [
+          0.0,
+          0.0
+        ],
+        "per_seed": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "communicated_bytes": {
+        "mean": 47393597.333333,
+        "ci_95_across_seeds": [
+          45468429.918856,
+          49318764.747811
+        ],
+        "per_seed": [
+          47232120.0,
+          49169848.0,
+          45778824.0
+        ]
+      },
+      "classifications": [
+        "UNLEARNING-BENEFICIAL",
+        "UNLEARNING-BENEFICIAL",
+        "UNLEARNING-HARMFUL"
+      ]
+    },
+    "cached_update_reconstruction_baseline": {
+      "test_accuracy": {
+        "mean": 0.413767,
+        "ci_95_across_seeds": [
+          0.396851,
+          0.430683
+        ],
+        "per_seed": [
+          0.4194999933242798,
+          0.42500001192092896,
+          0.3968000113964081
+        ]
+      },
+      "forgotten_accuracy": {
+        "mean": 0.403333,
+        "ci_95_across_seeds": [
+          0.322851,
+          0.483815
+        ],
+        "per_seed": [
+          0.35499998927116394,
+          0.48500001430511475,
+          0.3700000047683716
+        ]
+      },
+      "retained_accuracy": {
+        "mean": 0.431195,
+        "ci_95_across_seeds": [
+          0.424099,
+          0.438292
+        ],
+        "per_seed": [
+          0.425707072019577,
+          0.43803030252456665,
+          0.42984849214553833
+        ]
+      },
+      "forgotten_mia_auc": {
+        "mean": 0.518868,
+        "ci_95_across_seeds": [
+          0.460467,
+          0.577269
+        ],
+        "per_seed": [
+          0.5110001062812202,
+          0.47164461247637046,
+          0.5739588967009194
+        ]
+      },
+      "forgotten_mia_advantage": {
+        "mean": 0.005393,
+        "ci_95_across_seeds": [
+          -0.077729,
+          0.088515
+        ],
+        "per_seed": [
+          0.0,
+          -0.0652173913043479,
+          0.08139534883720934
+        ]
+      },
+      "retained_mia_auc": {
+        "mean": 0.528363,
+        "ci_95_across_seeds": [
+          0.502254,
+          0.554471
+        ],
+        "per_seed": [
+          0.5470079999999999,
+          0.5025599999999999,
+          0.53552
+        ]
+      },
+      "retained_mia_advantage": {
+        "mean": 0.048,
+        "ci_95_across_seeds": [
+          0.03168,
+          0.06432
+        ],
+        "per_seed": [
+          0.03600000000000003,
+          0.06399999999999995,
+          0.04400000000000004
+        ]
+      },
+      "forgotten_js": {
+        "mean": 0.115479,
+        "ci_95_across_seeds": [
+          0.10207,
+          0.128888
+        ],
+        "per_seed": [
+          0.12894144654273987,
+          0.10662970691919327,
+          0.11086661368608475
+        ]
+      },
+      "test_js": {
+        "mean": 0.123352,
+        "ci_95_across_seeds": [
+          0.116392,
+          0.130312
+        ],
+        "per_seed": [
+          0.13044743239879608,
+          0.11953165382146835,
+          0.12007822096347809
+        ]
+      },
+      "mub_accuracy": {
+        "mean": -0.008733,
+        "ci_95_across_seeds": [
+          -0.019942,
+          0.002475
+        ],
+        "per_seed": [
+          -0.0142,
+          0.0027,
+          -0.0147
+        ]
+      },
+      "mub_js": {
+        "mean": -0.00417,
+        "ci_95_across_seeds": [
+          -0.005256,
+          -0.003084
+        ],
+        "per_seed": [
+          -0.0033,
+          -0.0052,
+          -0.00401
+        ]
+      },
+      "mub_mia": {
+        "mean": 0.017563,
+        "ci_95_across_seeds": [
+          -0.056001,
+          0.091127
+        ],
+        "per_seed": [
+          0.07216,
+          -0.05435,
+          0.03488
+        ]
+      },
+      "runtime_seconds": {
+        "mean": 0.111333,
+        "ci_95_across_seeds": [
+          0.073356,
+          0.149311
+        ],
+        "per_seed": [
+          0.079,
+          0.146,
+          0.109
+        ]
+      },
+      "persistent_storage_bytes": {
+        "mean": 496542800.0,
+        "ci_95_across_seeds": [
+          486844392.315474,
+          506241207.684526
+        ],
+        "per_seed": [
+          505747008.0,
+          488791888.0,
+          495089504.0
+        ]
+      },
+      "communicated_bytes": {
+        "mean": 0.0,
+        "ci_95_across_seeds": [
+          0.0,
+          0.0
+        ],
+        "per_seed": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "classifications": [
+        "UNLEARNING-BENEFICIAL",
+        "UNLEARNING-HARMFUL",
+        "UNLEARNING-BENEFICIAL"
+      ]
+    },
+    "federated_eraser_baseline": {
+      "test_accuracy": {
+        "mean": 0.370533,
+        "ci_95_across_seeds": [
+          0.360947,
+          0.38012
+        ],
+        "per_seed": [
+          0.36149999499320984,
+          0.3783000111579895,
+          0.3718000054359436
+        ]
+      },
+      "forgotten_accuracy": {
+        "mean": 0.42,
+        "ci_95_across_seeds": [
+          0.316132,
+          0.523868
+        ],
+        "per_seed": [
+          0.35499998927116394,
+          0.5249999761581421,
+          0.3799999952316284
+        ]
+      },
+      "retained_accuracy": {
+        "mean": 0.379714,
+        "ci_95_across_seeds": [
+          0.364242,
+          0.395186
+        ],
+        "per_seed": [
+          0.365353524684906,
+          0.38121211528778076,
+          0.39257577061653137
+        ]
+      },
+      "forgotten_mia_auc": {
+        "mean": 0.530313,
+        "ci_95_across_seeds": [
+          0.461914,
+          0.598711
+        ],
+        "per_seed": [
+          0.5111063875013284,
+          0.4818052930056711,
+          0.5980259599783667
+        ]
+      },
+      "forgotten_mia_advantage": {
+        "mean": 0.055755,
+        "ci_95_across_seeds": [
+          -0.016434,
+          0.127944
+        ],
+        "per_seed": [
+          0.061855670103092786,
+          -0.010869565217391297,
+          0.11627906976744196
+        ]
+      },
+      "retained_mia_auc": {
+        "mean": 0.520917,
+        "ci_95_across_seeds": [
+          0.492594,
+          0.549241
+        ],
+        "per_seed": [
+          0.5291840000000001,
+          0.4928,
+          0.5407679999999999
+        ]
+      },
+      "retained_mia_advantage": {
+        "mean": 0.014667,
+        "ci_95_across_seeds": [
+          0.0016,
+          0.027733
+        ],
+        "per_seed": [
+          0.027999999999999997,
+          0.008000000000000007,
+          0.008000000000000007
+        ]
+      },
+      "forgotten_js": {
+        "mean": 0.109051,
+        "ci_95_across_seeds": [
+          0.103215,
+          0.114887
+        ],
+        "per_seed": [
+          0.11500540375709534,
+          0.10600166022777557,
+          0.10614582151174545
+        ]
+      },
+      "test_js": {
+        "mean": 0.114978,
+        "ci_95_across_seeds": [
+          0.109198,
+          0.120759
+        ],
+        "per_seed": [
+          0.11896625906229019,
+          0.11674891412258148,
+          0.10922028869390488
+        ]
+      },
+      "mub_accuracy": {
+        "mean": -0.051967,
+        "ci_95_across_seeds": [
+          -0.071944,
+          -0.031989
+        ],
+        "per_seed": [
+          -0.0722,
+          -0.044,
+          -0.0397
+        ]
+      },
+      "mub_js": {
+        "mean": 0.002257,
+        "ci_95_across_seeds": [
+          -0.006487,
+          0.011001
+        ],
+        "per_seed": [
+          0.01064,
+          -0.00458,
+          0.00071
+        ]
+      },
+      "mub_mia": {
+        "mean": 0.003437,
+        "ci_95_across_seeds": [
+          -0.003299,
+          0.010173
+        ],
+        "per_seed": [
+          0.01031,
+          0.0,
+          -0.0
+        ]
+      },
+      "runtime_seconds": {
+        "mean": 67.707667,
+        "ci_95_across_seeds": [
+          58.674422,
+          76.740911
+        ],
+        "per_seed": [
+          62.71,
+          63.499,
+          76.914
+        ]
+      },
+      "persistent_storage_bytes": {
+        "mean": 496542800.0,
+        "ci_95_across_seeds": [
+          486844392.315474,
+          506241207.684526
+        ],
+        "per_seed": [
+          505747008.0,
+          488791888.0,
+          495089504.0
+        ]
+      },
+      "communicated_bytes": {
+        "mean": 964665589.333333,
+        "ci_95_across_seeds": [
+          945312719.627624,
+          984018459.039042
+        ],
+        "per_seed": [
+          982912528.0,
+          949002288.0,
+          962081952.0
+        ]
+      },
+      "classifications": [
+        "UNLEARNING-HARMFUL",
+        "UNLEARNING-HARMFUL",
+        "UNLEARNING-HARMFUL"
+      ]
+    },
+    "target_retrain": {
+      "test_accuracy": {
+        "mean": 0.423067,
+        "ci_95_across_seeds": [
+          0.417558,
+          0.428575
+        ],
+        "per_seed": [
+          0.42399999499320984,
+          0.42739999294281006,
+          0.41780000925064087
+        ]
+      },
+      "forgotten_accuracy": {
+        "mean": 0.448333,
+        "ci_95_across_seeds": [
+          0.371306,
+          0.52536
+        ],
+        "per_seed": [
+          0.39500001072883606,
+          0.5249999761581421,
+          0.42500001192092896
+        ]
+      },
+      "retained_accuracy": {
+        "mean": 0.44101,
+        "ci_95_across_seeds": [
+          0.430367,
+          0.451653
+        ],
+        "per_seed": [
+          0.432121217250824,
+          0.45085859298706055,
+          0.44005051255226135
+        ]
+      },
+      "forgotten_mia_auc": {
+        "mean": 0.503861,
+        "ci_95_across_seeds": [
+          0.473273,
+          0.534449
+        ],
+        "per_seed": [
+          0.5236475714741206,
+          0.47306238185255206,
+          0.5148729042725797
+        ]
+      },
+      "forgotten_mia_advantage": {
+        "mean": 0.006631,
+        "ci_95_across_seeds": [
+          -0.06709,
+          0.080352
+        ],
+        "per_seed": [
+          0.061855670103092786,
+          -0.06521739130434781,
+          0.023255813953488413
+        ]
+      },
+      "retained_mia_auc": {
+        "mean": 0.516144,
+        "ci_95_across_seeds": [
+          0.493047,
+          0.539241
+        ],
+        "per_seed": [
+          0.515744,
+          0.49593600000000004,
+          0.536752
+        ]
+      },
+      "retained_mia_advantage": {
+        "mean": 0.012,
+        "ci_95_across_seeds": [
+          -0.00368,
+          0.02768
+        ],
+        "per_seed": [
+          -0.003999999999999976,
+          0.020000000000000018,
+          0.01999999999999999
+        ]
+      },
+      "forgotten_js": {
+        "mean": 0.0,
+        "ci_95_across_seeds": [
+          0.0,
+          0.0
+        ],
+        "per_seed": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "test_js": {
+        "mean": 0.0,
+        "ci_95_across_seeds": [
+          0.0,
+          0.0
+        ],
+        "per_seed": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "mub_accuracy": {
+        "mean": null,
+        "ci_95_across_seeds": null,
+        "per_seed": []
+      },
+      "mub_js": {
+        "mean": null,
+        "ci_95_across_seeds": null,
+        "per_seed": []
+      },
+      "mub_mia": {
+        "mean": null,
+        "ci_95_across_seeds": null,
+        "per_seed": []
+      },
+      "runtime_seconds": {
+        "mean": 152.253667,
+        "ci_95_across_seeds": [
+          145.444019,
+          159.063314
+        ],
+        "per_seed": [
+          153.158,
+          145.835,
+          157.768
+        ]
+      },
+      "persistent_storage_bytes": {
+        "mean": 0.0,
+        "ci_95_across_seeds": [
+          0.0,
+          0.0
+        ],
+        "per_seed": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "communicated_bytes": {
+        "mean": 482252056.0,
+        "ci_95_across_seeds": [
+          481057311.410919,
+          483446800.589081
+        ],
+        "per_seed": [
+          483463136.0,
+          481767624.0,
+          481525408.0
+        ]
+      },
+      "classifications": []
+    }
+  }
+}

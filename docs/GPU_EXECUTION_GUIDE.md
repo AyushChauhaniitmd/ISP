@@ -55,3 +55,21 @@ Then freeze rounds before varying `local_epochs`, followed by client count and p
 ## After a healthy point
 
 Do not tune the configuration using unlearning outcomes. Copy the selected config to a frozen configuration, record its commit and checksum, and only then run the full unlearning comparison.
+
+## Add confirmatory seeds to the frozen multiclass study
+
+From the repository root, use the batch runner to add the seven planned seeds
+(`20260921`–`20260927`) to the existing three-seed study:
+
+```powershell
+python scripts\run_frozen_seed_batch.py --dry-run
+python scripts\run_frozen_seed_batch.py
+```
+
+The runner checks that the frozen configuration still matches the study,
+executes seeds sequentially to avoid competing for GPU resources, skips
+completed matching seeds on rerun, and writes the combined summary to
+`results\frozen_unlearning_eps32_r40_e5\frozen_unlearning_summary.json`.
+Use `--seeds` to specify another non-overlapping seed batch. The five-member
+retrain ensemble remains enabled for every seed; reducing it would change the
+study protocol rather than merely speed up execution.

@@ -1,0 +1,51 @@
+{
+  "config_path": "C:\\Users\\LOQ\\OneDrive\\Desktop\\sem 5\\ISP\\ISP_G2\\configs\\multiclass_cnn_frozen_unlearning.yaml",
+  "config_sha256": "1676290e86d2596b6b05709c34eee48c9245ae808296e8b9694cb9d01117ebe7",
+  "deletion_manifest": "partitions\\generated\\deletion_7da128d9f9d59d50.csv",
+  "deletion_manifest_sha256": "7da128d9f9d59d507e630ea4129e19b7a187d5368618432d93bc79c6cc6c784b",
+  "deletion_requests": [
+    {
+      "client_id": 2,
+      "fraction": 1.0,
+      "request_index": 0
+    }
+  ],
+  "effective_privacy_config": {
+    "clip_norm": 1.0,
+    "delta": 1e-05,
+    "enabled": true,
+    "noise_multiplier": 0.85629173,
+    "population_size": 100,
+    "release_count": 1,
+    "sampling": "poisson"
+  },
+  "experiment_name": "multiclass_cnn_frozen_unlearning_eps32_r40_e5",
+  "limitations": [
+    "cifar10_multiclass public-data pilot; exploratory benchmark result, not a SOTA or certified-unlearning claim.",
+    "Fine-tuning accesses retained raw data and is not DP post-processing.",
+    "Attack results are loss-threshold and tri-population baseline probes, not LiRA/A-LiRA or TC-UMIA reproductions.",
+    "No secure aggregation service or certified-unlearning claim is implemented."
+  ],
+  "method_privacy_class": {
+    "cached_update_reconstruction_baseline": "uses sensitive per-client server update history; direct accumulation; not DP post-processing",
+    "dp_only_no_action": "final-model client-DP mechanism as recorded in privacy_ledger.json; not deletion",
+    "federated_eraser_baseline": "faithful FedEraser algorithm; requires stored historical updates and client calibration training; not DP post-processing",
+    "full_model": "pre-deletion model trained on all clients",
+    "retained_finetune_baseline": "accesses retained raw data after request; separate exposure regime, not DP post-processing",
+    "target_retrain": "internal retained-data retrain reference; if private, its population_size is the retained-client count"
+  },
+  "platform": "Windows-10-10.0.26200-SP0",
+  "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+  "reference_privacy_config": {
+    "clip_norm": 1.0,
+    "delta": 1e-05,
+    "enabled": true,
+    "noise_multiplier": 0.85629173,
+    "population_size": 99,
+    "release_count": 1,
+    "sampling": "poisson"
+  },
+  "seed": 20260926,
+  "torch": "2.11.0+cu128",
+  "validity_status": "VALID"
+}

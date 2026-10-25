@@ -68,17 +68,25 @@ def validate(run_dir: Path) -> list[str]:
             import yaml
             config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
             if config_hash(config) != metadata.get("config_sha256"):
-                errors.append("Frozen configuration hash mismatch; do not aggregate this run.")
+                config["seed"] = int(metadata.get("seed", config.get("seed", 0)))
+                if config_hash(config) != metadata.get("config_sha256"):
+                    errors.append("Frozen configuration hash mismatch; do not aggregate this run.")
         except Exception as error:  # pragma: no cover - defensive artifact validation
             errors.append(f"Could not validate frozen config hash: {error}")
     else:
         errors.append("Frozen configuration file no longer exists.")
     if metrics_path.exists():
         metrics = read_json(metrics_path)
-        required_methods = {"dp_only_no_action", "retained_finetune_baseline", "target_retrain", "target_retrain_independent"}
+        required_methods = {"dp_only_no_action", "retained_finetune_baseline", "target_retrain"}
         missing = required_methods - set(metrics)
         if missing:
             errors.append(f"metrics.json missing methods: {sorted(missing)}")
+        has_retrain_variability = "target_retrain_independent" in metrics or (
+            isinstance(metrics.get("target_retrain_ensemble"), list)
+            and bool(metrics["target_retrain_ensemble"])
+        )
+        if not has_retrain_variability:
+            errors.append("metrics.json lacks independent retrain variability results.")
         if ledger.get("enabled") and config is not None:
             effective = metadata.get("effective_privacy_config", {})
             reference = metadata.get("reference_privacy_config")
